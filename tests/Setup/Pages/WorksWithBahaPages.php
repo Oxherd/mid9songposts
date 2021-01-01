@@ -39,4 +39,9 @@ trait WorksWithBahaPages
     {
         return File::get($this->pagesFilePath . '\post_section.html');
     }
+
+    protected function quotedContent()
+    {
+        return File::get($this->pagesFilePath . '\quoted_content.html');
+    }
 }
