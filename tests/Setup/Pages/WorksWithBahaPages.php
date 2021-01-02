@@ -60,4 +60,22 @@ trait WorksWithBahaPages
             Http::response(File::get($this->pagesFilePath . '\different_year_post.html')),
         ]);
     }
+
+    protected function fakeOnePageSearchUserResponse()
+    {
+        Http::fake([
+            'forum.gamer.com.tw' => Http::fakeSequence()
+                ->push(File::get($this->pagesFilePath . '\search_user_p1.html'), 200)
+                ->push('', 404),
+        ]);
+    }
+
+    protected function fakeAllPageSearchUserResponse()
+    {
+        Http::fake([
+            'form.gamer.com.tw' => Http::fakeSequence()
+                ->push(File::get($this->pagesFilePath . '\search_user_p1.html'), 200)
+                ->push(File::get($this->pagesFilePath . '\search_user_p2.html'), 200),
+        ]);
+    }
 }
