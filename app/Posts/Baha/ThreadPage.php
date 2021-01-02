@@ -6,6 +6,7 @@ use App\Exceptions\NotExpectedPageException;
 use App\Links\UrlString;
 use App\Models\Thread;
 use App\Posts\Baha\PostSection;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -97,7 +98,12 @@ class ThreadPage
      * get thread's published date
      *
      * extract month and day from title, something like "12/1 半夜..."
-     * year is according to first post's created date from that page
+     * the year is according to first post's published date from the same page
+     *
+     * if fetched thread's date compare to first post date is far too long
+     * (like almost a year)
+     * it probably means the post was published from different year
+     * then shrink down thread's published date one year
      *
      * @return string formated: Y-m-d
      *
@@ -105,14 +111,15 @@ class ThreadPage
      */
     public function date()
     {
-        preg_match('/\d{1,2}\/\d{1,2}/', $this->title(), $monthDay);
+        $firstPostDate = $this->getDateFromFirstPost();
 
-        $year = Str::substr($this->html
-                ->filter('.c-post__header__info a[data-mtime]')
-                ->first()
-                ->attr('data-mtime'), 0, 4);
+        $expectedDate = $this->getDateFromTitle($firstPostDate);
 
-        return date('Y-m-d', strtotime("{$year}/{$monthDay[0]}"));
+        if ($expectedDate->diffInDays($firstPostDate) >= 300) {
+            $expectedDate->subYear();
+        }
+
+        return $expectedDate->toDateString();
     }
 
     /**
@@ -185,5 +192,36 @@ class ThreadPage
         } catch (InvalidArgumentException $e) {
             return false;
         }
+    }
+
+    /**
+     * get first post's published date from current thread html
+     *
+     * @return \Carbon\Carbon
+     */
+    protected function getDateFromFirstPost()
+    {
+        $dateTime = $this->html
+            ->filter('.c-post__header__info a[data-mtime]')
+            ->first()
+            ->attr('data-mtime');
+
+        return Carbon::createFromFormat('Y-m-d H:i:s', $dateTime);
+    }
+
+    /**
+     * generate expected thread's published date from title
+     *
+     * if title did not has any valid month/day, use first post published date instead
+     *
+     * @return \Carbon\Carbon
+     */
+    protected function getDateFromTitle(Carbon $firstPostDate)
+    {
+        preg_match('/\d{1,2}\/\d{1,2}/', $this->title(), $monthDay);
+
+        $monthDay = empty($monthDay) ? $firstPostDate->format('m/d') : $monthDay[0];
+
+        return Carbon::createFromFormat('Y/m/d', "{$firstPostDate->year}/$monthDay");
     }
 }

@@ -44,4 +44,20 @@ trait WorksWithBahaPages
     {
         return File::get($this->pagesFilePath . '\quoted_content.html');
     }
+
+    protected function fakeNoDateTitleResponse()
+    {
+        Http::fake([
+            'forum.gamer.com.tw/*' =>
+            Http::response(File::get($this->pagesFilePath . '\no_date_title.html')),
+        ]);
+    }
+
+    protected function fakeDifferentYearPostResponse()
+    {
+        Http::fake([
+            'forum.gamer.com.tw/*' =>
+            Http::response(File::get($this->pagesFilePath . '\different_year_post.html')),
+        ]);
+    }
 }

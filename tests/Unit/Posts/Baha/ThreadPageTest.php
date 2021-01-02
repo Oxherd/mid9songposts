@@ -126,6 +126,26 @@ class ThreadPageTest extends TestCase
     }
 
     /** @test */
+    public function it_use_first_post_published_date_if_title_not_provide_a_date()
+    {
+        $this->fakeNoDateTitleResponse();
+
+        $threadPage = new ThreadPage($this->bahaUrl);
+
+        $this->assertEquals('2021-01-02', $threadPage->date());
+    }
+
+    /** @test */
+    public function thread_date_and_post_published_date_wont_pass_far_too_long()
+    {
+        $this->fakeDifferentYearPostResponse();
+
+        $threadPage = new ThreadPage($this->bahaUrl);
+
+        $this->assertEquals('2020-12-31', $threadPage->date());
+    }
+
+    /** @test */
     public function it_can_fetch_all_posts_from_current_page()
     {
         $this->fakePageOnePostsResponse();
