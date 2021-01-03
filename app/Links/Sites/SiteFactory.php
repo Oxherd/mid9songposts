@@ -50,6 +50,7 @@ class SiteFactory
             'www.youtube.com',
             'youtu.be',
             'music.youtube.com',
+            'm.youtube.com',
         ],
     ];
 

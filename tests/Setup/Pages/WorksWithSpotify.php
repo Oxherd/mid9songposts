@@ -11,9 +11,8 @@ trait WorksWithSpotify
 
     protected function fakeToSpotifyResponse()
     {
-        Http::fake([
-            'link.tospotify.com/*' =>
-            Http::response(File::get($this->filePath . '\to_spotify.html')),
-        ]);
+        Http::fake(function () {
+            return Http::response(File::get($this->filePath . '\to_spotify.html'));
+        });
     }
 }

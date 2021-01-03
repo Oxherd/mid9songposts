@@ -11,17 +11,15 @@ trait WorksWithSoundCloud
 
     protected function fakeSoundCloudPageResponse()
     {
-        Http::fake([
-            'soundcloud.com/*' =>
-            Http::response(File::get($this->filePath . '\sound_cloud_music.html')),
-        ]);
+        Http::fake(function () {
+            return Http::response(File::get($this->filePath . '\sound_cloud_music.html'));
+        });
     }
 
     protected function fakeNotMusicPageResponse()
     {
-        Http::fake([
-            'soundcloud.com/*' =>
-            Http::response(File::get($this->filePath . '\sound_cloud_not_music.html')),
-        ]);
+        Http::fake(function () {
+            return Http::response(File::get($this->filePath . '\sound_cloud_not_music.html'));
+        });
     }
 }

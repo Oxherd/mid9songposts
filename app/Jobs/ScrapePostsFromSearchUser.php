@@ -53,7 +53,7 @@ class ScrapePostsFromSearchUser implements ShouldQueue
                 ->filter('半夜歌串一人一首')
                 ->getLinks()
                 ->each(function ($link) {
-                    ScrapeBahaPosts::dispatch($link);
+                    ScrapeBahaPosts::dispatch($link, $nextPage = true);
                 });
 
             if (!$this->switchPage) {

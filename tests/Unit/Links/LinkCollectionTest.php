@@ -3,12 +3,16 @@
 namespace Tests\Unit\Links;
 
 use App\Links\LinkCollection;
+use App\Models\InvalidLink;
 use App\Models\Link;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class LinkCollectionTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function it_use_static_fromText_method_to_create_a_new_instance()
     {
@@ -21,6 +25,29 @@ class LinkCollectionTest extends TestCase
         $links = LinkCollection::fromText('')->get();
 
         $this->assertInstanceOf(Collection::class, $links);
+    }
+
+    /** @test */
+    public function it_can_still_work_if_provide_a_invalid_url()
+    {
+        $links = LinkCollection::fromText('200_.jpg')->get();
+
+        $this->assertCount(1, $links);
+        $this->assertNull($links[0]->original);
+    }
+
+    /** @test */
+    public function it_will_leave_a_record_when_link_is_invalid()
+    {
+        $this->assertCount(0, InvalidLink::all());
+
+        LinkCollection::fromText('200_.jpg')->get();
+
+        $this->assertCount(1, InvalidLink::all());
+
+        $this->assertDatabaseHas('invalid_links', [
+            'url' => '200_.jpg',
+        ]);
     }
 
     /** @test */

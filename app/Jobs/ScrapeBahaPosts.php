@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use InvalidArgumentException;
 
 class ScrapeBahaPosts implements ShouldQueue
 {
@@ -20,14 +21,14 @@ class ScrapeBahaPosts implements ShouldQueue
      *
      * @property string
      */
-    protected $url;
+    public $url;
 
     /**
      * determin scrape process will continue if there if more page after
      *
      * @property bool
      */
-    protected $switchPage;
+    public $switchPage;
 
     /**
      * Create a new job instance.
@@ -43,13 +44,21 @@ class ScrapeBahaPosts implements ShouldQueue
     /**
      * It will scrape baha's posts and related data from given url
      *
+     * catchs \InvalidArgumentException when save up thread
+     * the page might be unavailable and can't get related data
+     * therefore do nothing
+     *
      * @return void
      */
     public function handle()
     {
         $threadPage = new ThreadPage($this->url);
 
-        $thread = $threadPage->save();
+        try {
+            $thread = $threadPage->save();
+        } catch (InvalidArgumentException $e) {
+            return;
+        }
 
         do {
             $threadPage->posts()->each(function (PostSection $section) use ($thread) {

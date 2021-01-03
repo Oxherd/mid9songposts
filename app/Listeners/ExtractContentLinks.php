@@ -18,17 +18,7 @@ class ExtractContentLinks
      */
     public function handle($event)
     {
-        $post = $event->post;
-
-        LinkCollection::fromText($this->filterQuotedContent($post->content))
-            ->unique()
-            ->filter()
-            ->get()
-            ->each(function (Link $link) use ($post) {
-                $link->post_id = $post->id;
-                $link->poster_id = $post->poster_id;
-                $link->save();
-            });
+        $event->post->extractLinks();
     }
 
     /**

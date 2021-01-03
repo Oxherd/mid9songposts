@@ -9,8 +9,7 @@ use App\Models\Thread;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use PharIo\Manifest\InvalidUrlException;
+use InvalidArgumentException;
 use Tests\Setup\Pages\WorksWithBahaPages;
 use Tests\TestCase;
 
@@ -96,5 +95,15 @@ class ScrapeBahaPostsTest extends TestCase
         ScrapeBahaPosts::dispatchSync($this->bahaUrl);
 
         $this->assertEquals(Post::first()->poster_id, Poster::first()->id);
+    }
+
+    /** @test */
+    public function it_catchs_InvalidArgumentException_and_do_nothing_because_the_thread_probably_unavailable()
+    {
+        $this->fakeThreadUnavailableResponse();
+
+        ScrapeBahaPosts::dispatchSync($this->bahaUrl);
+
+        $this->assertCount(0, Thread::all());
     }
 }

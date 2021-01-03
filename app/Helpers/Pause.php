@@ -11,7 +11,7 @@ class Pause
      *
      * @return void
      */
-    public static function seconds($seconds = 2)
+    public static function seconds($seconds = 1)
     {
         if (App::environment() !== 'testing') {
             sleep($seconds);

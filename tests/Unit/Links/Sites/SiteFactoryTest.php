@@ -94,11 +94,13 @@ class SiteFactoryTest extends TestCase
         $shortUrl = new SiteFactory('https://youtu.be/dQw4w9WgXcQ');
         $musicUrl = new SiteFactory('https://music.youtube.com/watch?v=dQw4w9WgXcQ');
         $embedUrl = new SiteFactory('https://www.youtube.com/embed/dQw4w9WgXcQ');
+        $mobileUrl = new SiteFactory('https://m.youtube.com/watch?v=dQw4w9WgXcQ');
 
         $this->assertInstanceOf(Youtube::class, $generalUrl->create());
         $this->assertInstanceOf(Youtube::class, $shortUrl->create());
         $this->assertInstanceOf(Youtube::class, $musicUrl->create());
         $this->assertInstanceOf(Youtube::class, $embedUrl->create());
+        $this->assertInstanceOf(Youtube::class, $mobileUrl->create());
     }
 
     /** @test */

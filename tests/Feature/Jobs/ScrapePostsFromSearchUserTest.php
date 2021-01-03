@@ -28,6 +28,10 @@ class ScrapePostsFromSearchUserTest extends TestCase
         ScrapePostsFromSearchUser::dispatchNow('foobar666');
 
         Queue::assertPushed(ScrapeBahaPosts::class, 29);
+
+        Queue::assertPushed(function(ScrapeBahaPosts $job) {
+            return $job->switchPage === true;
+        });
     }
 
     /** @test */

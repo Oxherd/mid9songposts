@@ -2,8 +2,10 @@
 
 namespace App\Links;
 
+use App\Models\InvalidLink;
 use App\Models\Link;
 use Illuminate\Support\Collection;
+use PharIo\Manifest\InvalidUrlException;
 
 class LinkCollection
 {
@@ -94,9 +96,15 @@ class LinkCollection
     protected function convertToLinkModel(Collection $links)
     {
         return $links->map(function ($link) {
-            return Link::make([
-                'original' => $link,
-            ]);
+            try {
+                return Link::make([
+                    'original' => $link,
+                ]);
+            } catch (InvalidUrlException $e) {
+                InvalidLink::create(['url' => $link]);
+
+                return new Link();
+            }
         });
     }
 }
