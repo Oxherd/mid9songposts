@@ -1,6 +1,5 @@
 ## priority: high
 
-- link's general url
 - push posts onto google sheet
 
 ---
@@ -11,3 +10,4 @@
 - daily scrape
 - migrate environment to docker?
 - when link was created, fetch their title by http request
+- make SiteFactory more flexable? (needs evaluate possibility that make all SiteContract method static)

@@ -48,4 +48,13 @@ class SpotifyTest extends TestCase
         $this->assertNull($generalUrl->getResourceId());
         $this->assertNull($embedUrl->getResourceId());
     }
+
+    /** @test */
+    public function it_can_generate_a_general_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://open.spotify.com/track/1LIbioTb3guzUzVtTEc8Fx',
+            Spotify::generalUrl('1LIbioTb3guzUzVtTEc8Fx')
+        );
+    }
 }

@@ -15,4 +15,9 @@ class GoogleDrive extends SiteContract
     {
         return Str::between($this->url->path(), '/d/', '/') ?: null;
     }
+
+    public static function generalUrl($resource_id)
+    {
+        return "https://drive.google.com/file/d/{$resource_id}/view";
+    }
 }

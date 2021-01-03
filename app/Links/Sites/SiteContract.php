@@ -25,4 +25,9 @@ abstract class SiteContract
      * get url resource id from given \App\Links\UrlString
      */
     abstract public function getResourceId();
+
+    /**
+     * using given resource id to generate a general url string
+     */
+    abstract public static function generalUrl($resource_id);
 }

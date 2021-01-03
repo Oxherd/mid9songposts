@@ -47,4 +47,12 @@ class BahaRedirect extends SiteContract
     {
         return $this->realSite->getResourceId();
     }
+
+    /**
+     * won't use this method in general
+     */
+    public static function generalUrl($resource_id)
+    {
+
+    }
 }

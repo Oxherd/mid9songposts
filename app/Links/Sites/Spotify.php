@@ -16,6 +16,11 @@ class Spotify extends SiteContract
         return $this->walkCondition() ?: null;
     }
 
+    public static function generalUrl($resource_id)
+    {
+        return "https://open.spotify.com/track/{$resource_id}";
+    }
+
     /**
      * check each condition is passable and return extracted result
      *

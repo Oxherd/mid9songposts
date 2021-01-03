@@ -37,4 +37,13 @@ class SoundCloudTest extends TestCase
 
         $this->assertNull($soundCloud->getResourceId());
     }
+
+    /** @test */
+    public function it_can_generate_a_general_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://soundcloud.com/bustre/bustre-calamity',
+            SoundCloud::generalUrl('/bustre/bustre-calamity')
+        );
+    }
 }

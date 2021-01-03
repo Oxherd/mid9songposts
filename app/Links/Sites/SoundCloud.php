@@ -24,6 +24,13 @@ class SoundCloud extends SiteContract
         return "{$this->url->path()}?sounds={$soundsId}";
     }
 
+    public static function generalUrl($resource_id)
+    {
+        $resource_id = trim($resource_id, '/');
+
+        return "https://soundcloud.com/{$resource_id}";
+    }
+
     /**
      * retreive SoundCloud's music id (soundcloud://sounds:xxxxx)
      *

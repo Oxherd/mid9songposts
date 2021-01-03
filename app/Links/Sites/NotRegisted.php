@@ -23,4 +23,12 @@ class NotRegisted extends SiteContract
     {
         return null;
     }
+
+    /**
+     * won't use this method in general
+     */
+    public static function generalUrl($resource_id)
+    {
+
+    }
 }

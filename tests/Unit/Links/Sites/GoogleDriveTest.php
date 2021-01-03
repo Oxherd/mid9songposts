@@ -18,7 +18,7 @@ class GoogleDriveTest extends TestCase
     /** @test */
     public function it_can_extract_resource_id_from_given_url()
     {
-        $googleDrive = new GoogleDrive('https://drive.google.com/file/d/1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW/view');
+        $googleDrive = new GoogleDrive('https://drive.google.com/file/d/1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW/preview');
 
         $this->assertEquals('1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW', $googleDrive->getResourceId());
     }
@@ -29,5 +29,14 @@ class GoogleDriveTest extends TestCase
         $googleDrive = new GoogleDrive('https://drive.google.com/file/d/');
 
         $this->assertNull($googleDrive->getResourceId());
+    }
+
+    /** @test */
+    public function it_can_generate_a_general_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://drive.google.com/file/d/1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW/view',
+            GoogleDrive::generalUrl('1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW')
+        );
     }
 }

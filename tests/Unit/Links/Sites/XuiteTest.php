@@ -40,4 +40,13 @@ class XuiteTest extends TestCase
         $this->assertNull($generalUrl->getResourceId());
         $this->assertNull($embedUrl->getResourceId());
     }
+
+    /** @test */
+    public function it_can_generate_a_general_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://vlog.xuite.net/play/Rkh5cXdhLTMzMDk3NTY5LmZsdg==',
+            Xuite::generalUrl('Rkh5cXdhLTMzMDk3NTY5LmZsdg==')
+        );
+    }
 }

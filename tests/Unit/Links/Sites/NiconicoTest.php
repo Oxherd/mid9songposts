@@ -38,4 +38,13 @@ class NiconicoTest extends TestCase
 
         $this->assertNull($niconico->getResourceId());
     }
+
+    /** @test */
+    public function it_can_generate_a_general_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://www.nicovideo.jp/watch/sm38041901',
+            Niconico::generalUrl('sm38041901')
+        );
+    }
 }

@@ -15,4 +15,9 @@ class Xuite extends SiteContract
     {
         return Str::afterLast($this->url->path(), '/') ?: null;
     }
+
+    public static function generalUrl($resource_id)
+    {
+        return "https://vlog.xuite.net/play/{$resource_id}";
+    }
 }

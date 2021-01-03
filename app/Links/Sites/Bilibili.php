@@ -16,6 +16,11 @@ class Bilibili extends SiteContract
         return $this->walkCondition() ?: null;
     }
 
+    public static function generalUrl($resource_id)
+    {
+        return "https://www.bilibili.com/video/{$resource_id}";
+    }
+
     /**
      * check given url is provide general video or not
      *

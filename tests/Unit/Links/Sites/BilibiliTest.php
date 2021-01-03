@@ -40,4 +40,13 @@ class BilibiliTest extends TestCase
         $this->assertNull($generalUrl->getResourceId());
         $this->assertNull($embedUrl->getResourceId());
     }
+
+    /** @test */
+    public function it_can_generate_a_general_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://www.bilibili.com/video/BV1Gy4y167jL',
+            Bilibili::generalUrl('BV1Gy4y167jL')
+        );
+    }
 }

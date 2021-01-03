@@ -58,4 +58,13 @@ class YoutubeTest extends TestCase
         $this->assertNull($shortUrl->getResourceId());
         $this->assertNull($embedUrl->getResourceId());
     }
+
+    /** @test */
+    public function it_can_generate_a_general_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            Youtube::generalUrl('dQw4w9WgXcQ')
+        );
+    }
 }

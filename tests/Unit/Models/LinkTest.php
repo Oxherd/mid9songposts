@@ -3,14 +3,25 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Link;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class LinkTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function it_set_site_attribute_when_assign_original_attribute()
     {
         $link = Link::make(['original' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ']);
+
+        $this->assertEquals('youtube', $link->site);
+    }
+
+    /** @test */
+    public function it_can_also_pass_url_that_without_http_protocol_string()
+    {
+        $link = Link::make(['original' => 'www.youtube.com/watch?v=dQw4w9WgXcQ']);
 
         $this->assertEquals('youtube', $link->site);
     }
@@ -36,6 +47,19 @@ class LinkTest extends TestCase
     {
         $link = Link::make(['original' => 'https://example.foo.bar']);
 
-        $this->assertNull($link->resource);
+        $this->assertNull($link->resource_id);
+
+        $this->assertTrue($link->isDirty('resource_id'));
+    }
+
+    /** @test */
+    public function it_can_get_a_general_url_string_from_resource_id()
+    {
+        $link = Link::make(['original' => 'https://music.youtube.com/watch?v=dQw4w9WgXcQ']);
+
+        $this->assertEquals(
+            'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            $link->general()
+        );
     }
 }

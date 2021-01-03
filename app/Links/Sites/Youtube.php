@@ -20,6 +20,11 @@ class Youtube extends SiteContract
         return $this->walkCondition() ?: null;
     }
 
+    public static function generalUrl($resource_id)
+    {
+        return "https://www.youtube.com/watch?v={$resource_id}";
+    }
+
     /**
      * check given url is provide video or not
      *

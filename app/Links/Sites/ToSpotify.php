@@ -35,4 +35,12 @@ class ToSpotify extends SiteContract
 
         return (new Spotify($extractedUrl))->getResourceId();
     }
+
+    /**
+     * won't use this method in general
+     */
+    public static function generalUrl($resource_id)
+    {
+
+    }
 }

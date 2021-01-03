@@ -15,4 +15,9 @@ class Niconico extends SiteContract
     {
         return Str::after($this->url->path(), '/watch/') ?: null;
     }
+
+    public static function generalUrl($resource_id)
+    {
+        return "https://www.nicovideo.jp/watch/{$resource_id}";
+    }
 }
