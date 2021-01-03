@@ -1,6 +1,6 @@
 ## priority: high
 
-- search threads must posted by me
+- link's general url
 - push posts onto google sheet
 
 ---
@@ -10,3 +10,4 @@
 - when post created, add new queue job to fetch post's comments
 - daily scrape
 - migrate environment to docker?
+- when link was created, fetch their title by http request

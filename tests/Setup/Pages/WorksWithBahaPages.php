@@ -78,4 +78,23 @@ trait WorksWithBahaPages
                 ->push(File::get($this->pagesFilePath . '\search_user_p2.html'), 200),
         ]);
     }
+
+    protected function fakeOnePageSearchTitleResponse()
+    {
+        Http::fake([
+            'forum.gamer.com.tw' => Http::fakeSequence()
+                ->push(File::get($this->pagesFilePath . '\search_title_p1.html'), 200)
+                ->push('', 404),
+        ]);
+    }
+
+    protected function fakeAllPageSearchTitleResponse()
+    {
+        Http::fake([
+            'forum.gamer.com.tw' => Http::fakeSequence()
+                ->push(File::get($this->pagesFilePath . '\search_title_p1.html'), 200)
+                ->push(File::get($this->pagesFilePath . '\search_title_p2.html'), 200)
+                ->push('', 404),
+        ]);
+    }
 }

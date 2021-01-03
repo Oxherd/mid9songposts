@@ -63,13 +63,4 @@ class ScrapePostsFromSearchUser implements ShouldQueue
             Pause::seconds();
         } while ($searchResult = $searchResult->nextPage());
     }
-
-    protected function hasNextPage()
-    {
-        try {
-            return !!$this->html->filter('.pagenow')->first()->nextAll()->text('');
-        } catch (InvalidArgumentException $e) {
-            return false;
-        }
-    }
 }
