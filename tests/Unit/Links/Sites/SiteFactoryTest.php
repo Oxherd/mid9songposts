@@ -110,4 +110,16 @@ class SiteFactoryTest extends TestCase
 
         $this->assertInstanceOf(NotRegisted::class, $notRegisted->create());
     }
+
+    /** @test */
+    public function it_can_get_SiteContract_class_string_by_provide_a_site_name()
+    {
+        $this->assertEquals('App\Links\Sites\Youtube', SiteFactory::make('youtube'));
+    }
+
+    /** @test */
+    public function it_get_NotRegisted_class_string_when_make_a_site_that_not_register_in_lookup_table()
+    {
+        $this->assertEquals('App\Links\Sites\NotRegisted', SiteFactory::make('not_in_lookup_table'));
+    }
 }

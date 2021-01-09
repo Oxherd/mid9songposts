@@ -59,7 +59,7 @@ class SiteFactory
      *
      * @property array
      */
-    protected $siteClasses = [
+    protected static $siteClasses = [
         'baha_redirect' => BahaRedirect::class,
         'bilibili' => Bilibili::class,
         'google_drive' => GoogleDrive::class,
@@ -90,13 +90,31 @@ class SiteFactory
     {
         $site = $this->belongsSite($this->url->domain());
 
-        $siteClass = $this->siteClasses[$site] ?? null;
+        $siteClass = static::$siteClasses[$site] ?? null;
 
         if (!class_exists($siteClass)) {
             return new NotRegisted($this->url);
         }
 
         return new $siteClass($this->url);
+    }
+
+    /**
+     * by provide a site name, return a site class string that register in siteClasses lookup table
+     *
+     * @param string $site
+     *
+     * @return string
+     */
+    public static function make($site)
+    {
+        $siteClass = static::$siteClasses[$site] ?? null;
+
+        if (!class_exists($siteClass)) {
+            return NotRegisted::class;
+        }
+
+        return $siteClass;
     }
 
     /**

@@ -34,14 +34,19 @@ class Link extends Model
         $this->attributes['resource_id'] = $siteFactory->getResourceId();
     }
 
+    /**
+     * get a general version of Link's url
+     *
+     * @return string
+     */
     public function general()
     {
         if (!$this->attributes['resource_id']) {
             return null;
         }
 
-        $site = (new SiteFactory($this->attributes['original']))->create();
+        $site = SiteFactory::make($this->attributes['site']);
 
-        return $site::generalUrl($this->resource_id);
+        return $site::generalUrl($this->attributes['resource_id']);
     }
 }
