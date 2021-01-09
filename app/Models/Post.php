@@ -39,6 +39,14 @@ class Post extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function noMusic()
+    {
+        return $this->morphOne(NoMusic::class, 'morph');
+    }
+
+    /**
      * extract all url string from content and save into Link
      *
      * make sure they are unique and domain register in lookup table
@@ -47,7 +55,7 @@ class Post extends Model
      */
     public function extractLinks()
     {
-        LinkCollection::fromText($this->withoutQuotes($this->content))
+        LinkCollection::fromText($this->content)
             ->unique()
             ->filter()
             ->get()
@@ -56,31 +64,5 @@ class Post extends Model
                 $link->poster_id = $this->poster_id;
                 $link->save();
             });
-    }
-
-    /**
-     * sometimes poster will quote other people's post
-     *
-     * in order to avoid count duplicate link as same poster
-     * filter down quoted content
-     *
-     * quoted content may look like this: "> this is quoted content"
-     *
-     * @param string $text
-     *
-     * @return string
-     */
-    protected function withoutQuotes($text)
-    {
-        $html = new Crawler($text);
-
-        $html = $html->filter('body > *')
-            ->each(function (Crawler $node) {
-                return Str::startsWith($node->text(), '>') ?
-                null :
-                $node->outerHtml();
-            });
-
-        return implode($html);
     }
 }

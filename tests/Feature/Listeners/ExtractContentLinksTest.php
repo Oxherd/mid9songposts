@@ -24,16 +24,6 @@ class ExtractContentLinksTest extends TestCase
     }
 
     /** @test */
-    public function it_will_skip_quoted_content_text()
-    {
-        Post::factory()->forPoster()->create([
-            'content' => $this->quotedContent(),
-        ]);
-
-        $this->assertCount(5, Link::all());
-    }
-
-    /** @test */
     public function extracted_links_is_associated_with_post_and_poster_from_the_same_post()
     {
         $post = Post::factory()->forPoster()->create();

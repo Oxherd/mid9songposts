@@ -38,12 +38,17 @@ class SiteFactory
             'open.spotify.com',
         ],
 
+        'street_voice' => [
+            'streetvoice.com',
+        ],
+
         'to_spotify' => [
             'link.tospotify.com',
         ],
 
         'xuite' => [
             'vlog.xuite.net',
+            'm.xuite.net',
         ],
 
         'youtube' => [
@@ -66,6 +71,7 @@ class SiteFactory
         'niconico' => Niconico::class,
         'sound_cloud' => SoundCloud::class,
         'spotify' => Spotify::class,
+        'street_voice' => StreetVoice::class,
         'to_spotify' => ToSpotify::class,
         'xuite' => Xuite::class,
         'youtube' => Youtube::class,

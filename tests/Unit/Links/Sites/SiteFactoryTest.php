@@ -10,6 +10,7 @@ use App\Links\Sites\NotRegisted;
 use App\Links\Sites\SiteFactory;
 use App\Links\Sites\SoundCloud;
 use App\Links\Sites\Spotify;
+use App\Links\Sites\StreetVoice;
 use App\Links\Sites\ToSpotify;
 use App\Links\Sites\Xuite;
 use App\Links\Sites\Youtube;
@@ -72,6 +73,14 @@ class SiteFactoryTest extends TestCase
     }
 
     /** @test */
+    public function it_can_create_StreetVoice_site_instance()
+    {
+        $siteFactory = new SiteFactory('https://streetvoice.com/tryingtimes/songs/562857');
+
+        $this->assertInstanceOf(StreetVoice::class, $siteFactory->create());
+    }
+
+    /** @test */
     public function it_can_create_ToSpotify_site_instance()
     {
         $siteFactory = new SiteFactory('https://link.tospotify.com/fGu711Rupbb');
@@ -82,9 +91,13 @@ class SiteFactoryTest extends TestCase
     /** @test */
     public function it_can_create_Xuite_site_instance()
     {
-        $siteFactory = new SiteFactory('https://vlog.xuite.net/embed/Rkh5cXdhLTMzMDk3NTY5LmZsdg==');
+        $generalUrl = new SiteFactory('https://vlog.xuite.net/play/Rkh5cXdhLTMzMDk3NTY5LmZsdg==');
+        $embedUrl = new SiteFactory('https://vlog.xuite.net/embed/Rkh5cXdhLTMzMDk3NTY5LmZsdg==');
+        $mobileUrl = new SiteFactory('https://m.xuite.net/vlog/star57/dmw2d0hiLTEwNjIzODYuZmx2');
 
-        $this->assertInstanceOf(Xuite::class, $siteFactory->create());
+        $this->assertInstanceOf(Xuite::class, $generalUrl->create());
+        $this->assertInstanceOf(Xuite::class, $embedUrl->create());
+        $this->assertInstanceOf(Xuite::class, $mobileUrl->create());
     }
 
     /** @test */

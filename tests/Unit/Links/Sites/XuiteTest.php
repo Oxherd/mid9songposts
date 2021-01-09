@@ -32,13 +32,23 @@ class XuiteTest extends TestCase
     }
 
     /** @test */
+    public function it_can_extract_resource_id_from_mobile_url()
+    {
+        $xuite = new Xuite('https://m.xuite.net/vlog/star57/dmw2d0hiLTEwNjIzODYuZmx2');
+
+        $this->assertEquals('dmw2d0hiLTEwNjIzODYuZmx2', $xuite->getResourceId());
+    }
+
+    /** @test */
     public function it_will_return_null_if_somehow_can_not_retreive_resource_id()
     {
-        $generalUrl = new Xuite('https://vlog.xuite.net/play/');
-        $embedUrl = new Xuite('https://vlog.xuite.net/embed/');
+        $generalUrl = new Xuite('https://vlog.xuite.net/play');
+        $embedUrl = new Xuite('https://vlog.xuite.net/embed');
+        $mobileUrl = new Xuite('https://m.xuite.net/vlog/star57');
 
         $this->assertNull($generalUrl->getResourceId());
         $this->assertNull($embedUrl->getResourceId());
+        $this->assertNull($mobileUrl->getResourceId());
     }
 
     /** @test */

@@ -32,16 +32,4 @@ class PostTest extends TestCase
 
         $this->assertCount(1, Link::all());
     }
-
-    /** @test */
-    public function it_skips_quoted_string_in_content_when_extract_links()
-    {
-        $post = Post::factory()->create([
-            'content' => $this->quotedContent(),
-        ]);
-
-        $post->extractLinks();
-
-        $this->assertCount(5, $post->links);
-    }
 }

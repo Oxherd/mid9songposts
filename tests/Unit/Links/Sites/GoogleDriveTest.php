@@ -24,11 +24,21 @@ class GoogleDriveTest extends TestCase
     }
 
     /** @test */
+    public function it_can_get_resource_id_from_open_path_url()
+    {
+        $googleDrive = new GoogleDrive('https://drive.google.com/open?id=15ZOmbQy5mqRlFm44CiQRxwyay_VbMRJ9');
+
+        $this->assertEquals('15ZOmbQy5mqRlFm44CiQRxwyay_VbMRJ9', $googleDrive->getResourceId());
+    }
+
+    /** @test */
     public function it_will_return_null_if_somehow_can_not_get_expected_resource_id()
     {
-        $googleDrive = new GoogleDrive('https://drive.google.com/file/d/');
+        $viewUrl = new GoogleDrive('https://drive.google.com/file/d/');
+        $openUrl = new GoogleDrive('https://drive.google.com/open?id=');
 
-        $this->assertNull($googleDrive->getResourceId());
+        $this->assertNull($viewUrl->getResourceId());
+        $this->assertNull($openUrl->getResourceId());
     }
 
     /** @test */

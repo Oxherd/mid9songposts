@@ -13,11 +13,51 @@ class Xuite extends SiteContract
 
     public function getResourceId()
     {
-        return Str::afterLast($this->url->path(), '/') ?: null;
+        return trim($this->walkCondition(), '/') ?: null;
     }
 
     public static function generalUrl($resource_id)
     {
         return "https://vlog.xuite.net/play/{$resource_id}";
+    }
+
+    /**
+     * determine how resource id segment return
+     *
+     * @return string|null
+     */
+    protected function walkCondition()
+    {
+        if ($this->isEmbedUrl()) {
+            return Str::after($this->url->path(), '/embed');
+        }
+
+        if ($this->isMobileUrl()) {
+            $paths = explode('/', $this->url->path());
+
+            return $paths[3] ?? null;
+        }
+
+        return Str::afterLast($this->url->path(), '/play');
+    }
+
+    /**
+     * check is url a embed string
+     *
+     * @return bool
+     */
+    protected function isEmbedUrl()
+    {
+        return Str::startsWith($this->url->path(), '/embed');
+    }
+
+    /**
+     * check is url a mobile string
+     *
+     * @return bool
+     */
+    protected function isMobileUrl()
+    {
+        return $this->url->domain() === 'm.xuite.net';
     }
 }
