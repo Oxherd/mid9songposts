@@ -14,6 +14,15 @@ class Post extends Model
     use HasFactory;
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'has_music' => 'boolean',
+    ];
+
+    /**
      * The event map for the model.
      *
      * @property array

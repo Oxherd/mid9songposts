@@ -78,7 +78,7 @@ class PostSection
      */
     public function content()
     {
-        return $this->html->filter('.c-article__content')->html();
+        return urldecode($this->html->filter('.c-article__content')->html());
     }
 
     /**

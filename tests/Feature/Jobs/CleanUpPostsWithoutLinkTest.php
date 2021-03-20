@@ -18,16 +18,13 @@ class CleanUpPostsWithoutLinkTest extends TestCase
     {
         $post = Post::factory()->create(['content' => 'foo bar baz']);
 
-        $this->assertCount(0, NoMusic::all());
+        $this->assertTrue($post->has_music);
 
         CleanUpPostsWithoutLink::dispatchNow();
 
-        $this->assertCount(1, NoMusic::all());
+        $post->refresh();
 
-        $this->assertDatabaseHas('no_music', [
-            'morph_id' => $post->id,
-            'morph_type' => 'App\Models\Post',
-        ]);
+        $this->assertFalse($post->has_music);
     }
 
     /** @test */
@@ -35,26 +32,14 @@ class CleanUpPostsWithoutLinkTest extends TestCase
     {
         Event::fake();
 
-        Post::factory()->create();
+        $post = Post::factory()->create();
 
-        $this->assertCount(0, NoMusic::all());
-
-        CleanUpPostsWithoutLink::dispatchNow();
-
-        $this->assertCount(0, NoMusic::all());
-    }
-
-    /** @test */
-    public function it_will_not_tag_same_post_no_music_again()
-    {
-        Post::factory()->create(['content' => 'foo bar baz']);
+        $this->assertCount(0, $post->links);
 
         CleanUpPostsWithoutLink::dispatchNow();
 
-        $this->assertCount(1, NoMusic::all());
+        $post->refresh();
 
-        CleanUpPostsWithoutLink::dispatchNow();
-
-        $this->assertCount(1, NoMusic::all());
+        $this->assertCount(1, $post->links);
     }
 }

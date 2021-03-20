@@ -32,18 +32,13 @@ class CleanUpPostsWithoutLink implements ShouldQueue
     {
         Post::select('posts.*')
             ->leftJoin('links', 'links.post_id', '=', 'posts.id')
-            ->leftJoin('no_music', function ($join) {
-                $join->on('no_music.morph_id', '=', 'posts.id')
-                    ->where('morph_type', Post::class);
-            })
             ->whereNull('links.id')
-            ->whereNull('no_music.id')
             ->get()
             ->each(function (Post $post) {
                 $post->extractLinks();
 
                 if (!$post->links()->count()) {
-                    $post->noMusic()->create();
+                    $post->update(['has_music' => false]);
                 }
             });
     }

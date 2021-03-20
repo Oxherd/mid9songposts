@@ -25,6 +25,7 @@ class PostFactory extends Factory
         return [
             'poster_id' => Poster::factory(),
             'no' => (string) $this->faker->randomNumber(),
+            'has_music' => true,
             'content' => '<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Link</a>',
             'inserted_at' => now()->toDateTimeString(),
         ];
