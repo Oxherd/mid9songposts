@@ -25,7 +25,7 @@ class SoundCloudTest extends TestCase
 
         $soundCloud = new SoundCloud('https://soundcloud.com/bustre/bustre-calamity');
 
-        $this->assertEquals('/bustre/bustre-calamity?sounds=271297238', $soundCloud->getResourceId());
+        $this->assertEquals('/bustre/bustre-calamity?tracks=271297238', $soundCloud->getResourceId());
     }
 
     /** @test */

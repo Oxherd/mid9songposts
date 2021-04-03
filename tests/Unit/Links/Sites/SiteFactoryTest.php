@@ -57,9 +57,11 @@ class SiteFactoryTest extends TestCase
     /** @test */
     public function it_can_create_SoundCloud_site_instance()
     {
-        $siteFactory = new SiteFactory('https://soundcloud.com/bustre/bustre-calamity');
+        $generalUrl = new SiteFactory('https://soundcloud.com/bustre/bustre-calamity');
+        $shareUrl = new SiteFactory('https://soundcloud.app.goo.gl/VVzFj');
 
-        $this->assertInstanceOf(SoundCloud::class, $siteFactory->create());
+        $this->assertInstanceOf(SoundCloud::class, $generalUrl->create());
+        $this->assertInstanceOf(SoundCloud::class, $shareUrl->create());
     }
 
     /** @test */

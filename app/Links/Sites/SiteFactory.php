@@ -32,6 +32,7 @@ class SiteFactory
 
         'sound_cloud' => [
             'soundcloud.com',
+            'soundcloud.app.goo.gl',
         ],
 
         'spotify' => [

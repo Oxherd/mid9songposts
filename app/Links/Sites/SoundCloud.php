@@ -15,13 +15,22 @@ class SoundCloud extends SiteContract
 
     public function getResourceId()
     {
-        $soundsId = $this->getSoundsId();
+        $SCpage = Http::get((string) $this->url);
+
+        $html = new Crawler((string) $SCpage);
+
+        $soundsId = $this->extractSoundsId($html);
 
         if (!$soundsId) {
             return null;
         }
 
-        return "{$this->url->path()}?sounds={$soundsId}";
+        $path = Str::after(
+            $html->filter('link[rel="canonical"]')->attr('href'),
+            'soundcloud.com'
+        );
+
+        return "{$path}?tracks={$soundsId}";
     }
 
     public static function generalUrl($resource_id)
@@ -32,18 +41,17 @@ class SoundCloud extends SiteContract
     }
 
     /**
-     * retreive SoundCloud's music id (soundcloud://sounds:xxxxx)
+     * extract SoundCloud's music id (soundcloud://sounds:xxxxx) from scraped html
      *
-     * if can not retreivce, it mean given url page is not general music page
+     * if extract nothing, it mean given html is not general music page
+     * which will return null
+     *
+     * @param Crawler $html
      *
      * @return string|null
      */
-    protected function getSoundsId()
+    protected function extractSoundsId($html)
     {
-        $SCpage = Http::get((string) $this->url);
-
-        $html = new Crawler((string) $SCpage);
-
         $metadata = $html->filter('meta[property="al:android:url"]')->attr('content');
 
         return
