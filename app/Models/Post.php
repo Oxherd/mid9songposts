@@ -47,14 +47,6 @@ class Post extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
-     */
-    public function noMusic()
-    {
-        return $this->morphOne(NoMusic::class, 'morph');
-    }
-
-    /**
      * extract all url string from content and save them into Link
      *
      * in case link get duplicated, delete associate links first

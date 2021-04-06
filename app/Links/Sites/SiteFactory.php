@@ -28,6 +28,7 @@ class SiteFactory
         'niconico' => [
             'www.nicovideo.jp',
             'embed.nicovideo.jp',
+            'sp.nicovideo.jp',
         ],
 
         'sound_cloud' => [
@@ -57,6 +58,7 @@ class SiteFactory
             'youtu.be',
             'music.youtube.com',
             'm.youtube.com',
+            'youtube.com',
         ],
     ];
 

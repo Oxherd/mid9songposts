@@ -12,7 +12,6 @@
 - [feat] when link was created, fetch their title by http request
 - [feat] a clear list indicate which post has no link and already been checkout
     - or remove InvalidLink, just focus NotRegisted site instead
-- [refactor] clean up NoMusic class left in code
 
 ---
 
