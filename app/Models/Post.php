@@ -7,7 +7,6 @@ use App\Links\LinkCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Symfony\Component\DomCrawler\Crawler;
 
 class Post extends Model
 {
@@ -56,22 +55,31 @@ class Post extends Model
     }
 
     /**
-     * extract all url string from content and save into Link
+     * extract all url string from content and save them into Link
      *
-     * make sure they are unique and domain register in lookup table
+     * in case link get duplicated, delete associate links first
+     *
+     * see test in Tests\Feature\Listeners\ExtracContentLinksTest.php
      *
      * @return void
      */
     public function extractLinks()
     {
-        LinkCollection::fromText($this->content)
+        $links = LinkCollection::fromText($this->content)
             ->unique()
             ->filter()
-            ->get()
-            ->each(function (Link $link) {
+            ->get();
+
+        if ($links->isNotEmpty()) {
+            $this->links()->delete();
+
+            $links->each(function (Link $link) {
                 $link->post_id = $this->id;
                 $link->poster_id = $this->poster_id;
                 $link->save();
             });
+        }
+
+        $this->update(['has_music' => $links->isNotEmpty()]);
     }
 }

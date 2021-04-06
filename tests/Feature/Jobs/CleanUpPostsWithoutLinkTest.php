@@ -14,8 +14,10 @@ class CleanUpPostsWithoutLinkTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function it_can_get_posts_without_link_and_add_a_new_record_to_tag_them_with_no_music()
+    public function it_will_find_out_posts_has_no_link_and_tag_them_has_no_music()
     {
+        Event::fake();
+
         $post = Post::factory()->create(['content' => 'foo bar baz']);
 
         $this->assertTrue($post->has_music);
@@ -25,21 +27,5 @@ class CleanUpPostsWithoutLinkTest extends TestCase
         $post->refresh();
 
         $this->assertFalse($post->has_music);
-    }
-
-    /** @test */
-    public function it_extract_links_first_in_case_there_are_actual_url_in_content()
-    {
-        Event::fake();
-
-        $post = Post::factory()->create();
-
-        $this->assertCount(0, $post->links);
-
-        CleanUpPostsWithoutLink::dispatchNow();
-
-        $post->refresh();
-
-        $this->assertCount(1, $post->links);
     }
 }

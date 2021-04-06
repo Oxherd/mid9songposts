@@ -36,10 +36,6 @@ class CleanUpPostsWithoutLink implements ShouldQueue
             ->get()
             ->each(function (Post $post) {
                 $post->extractLinks();
-
-                if (!$post->links()->count()) {
-                    $post->update(['has_music' => false]);
-                }
             });
     }
 }
