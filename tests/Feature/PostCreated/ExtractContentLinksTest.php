@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Listeners;
+namespace Tests\Feature\PostCreated;
 
 use App\Models\Link;
 use App\Models\Post;

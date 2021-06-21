@@ -21,14 +21,12 @@ class Post extends Model
         'has_music' => 'boolean',
     ];
 
-    /**
-     * The event map for the model.
-     *
-     * @property array
-     */
-    protected $dispatchesEvents = [
-        'created' => PostCreated::class,
-    ];
+    protected static function booted()
+    {
+        static::created(function($post) {
+            $post->extractLinks();
+        });
+    }
 
     /**
      * @return Illuminate\Database\Eloquent\Relations\BelongsTo
