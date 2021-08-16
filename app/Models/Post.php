@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Events\PostCreated;
+use App\Jobs\FetchPostComments;
 use App\Links\LinkCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,8 +23,10 @@ class Post extends Model
 
     protected static function booted()
     {
-        static::created(function($post) {
+        static::created(function ($post) {
             $post->extractLinks();
+
+            FetchPostComments::dispatch($post);
         });
     }
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Setup\Pages;
 
+use App\Jobs\FetchPostComments;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
@@ -12,6 +13,8 @@ trait WorksWithBahaPages
     protected $singlePostUrl = 'https://forum.gamer.com.tw/Co.php?bsn=60076&sn=38564976';
 
     protected $pagesFilePath = __DIR__ . '\html';
+
+    protected $jsonTextPath = __DIR__ . '\json';
 
     protected function fakePageOnePostsResponse()
     {
@@ -92,6 +95,20 @@ trait WorksWithBahaPages
     {
         Http::fake(function () {
             return Http::response(File::get($this->pagesFilePath . '\thread_unavailable.html'), 410);
+        });
+    }
+
+    protected function fakeFetchSingleCommentResponse()
+    {
+        Http::fake(function() {
+            return Http::response(File::get($this->jsonTextPath . '\single_comment.json'), 200);
+        });
+    }
+
+    protected function fakeFetchMultipleCommentsResponse()
+    {
+        Http::fake(function() {
+            return Http::response(File::get($this->jsonTextPath . '\multiple_comments.json'), 200);
         });
     }
 }

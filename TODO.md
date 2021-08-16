@@ -1,13 +1,13 @@
 ## priority: high
 
-- [feat] when post created, add new queue job to fetch post's comments
+- [feat] fetch existed post's comments
+- [feat] daily scrape
 
 ---
 
 ## priority: not that high
 
 - [feat] make jobs commandable
-- [feat] daily scrape
 - [chore] migrate environment to docker?
 - [feat] when link was created, fetch their title by http request
 - [feat] a clear list indicate which post has no link and already been checkout
