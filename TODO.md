@@ -1,6 +1,6 @@
 ## priority: high
 
-- [feat] fetch existed post's comments
+- [chore] upgrade laravel for queue:work --sleep
 - [feat] daily scrape
 
 ---

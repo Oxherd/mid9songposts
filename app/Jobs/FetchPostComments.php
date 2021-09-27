@@ -6,7 +6,6 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Posts\Baha\PosterData;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -27,6 +26,8 @@ class FetchPostComments implements ShouldQueue
     public function __construct(Post $post)
     {
         $this->post = $post;
+
+        $this->onQueue('scrape');
     }
 
     /**
@@ -44,12 +45,12 @@ class FetchPostComments implements ShouldQueue
             $this->fail();
         }
 
-        collect($response->json())->except('next_snC')->each(function($data) {
+        collect($response->json())->except('next_snC')->each(function ($data) {
             Comment::create([
                 'post_id' => $this->post->id,
                 'poster_id' => (new PosterData($data['userid'], $data['nick']))->save()->id,
                 'content' => $data['content'],
-                'created_at' => '2021-07-22 17:35:55',
+                'created_at' => $data['wtime'],
                 'inserted_at' => now()->toDateTimeString(),
             ]);
         });

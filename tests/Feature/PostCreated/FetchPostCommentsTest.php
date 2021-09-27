@@ -7,7 +7,6 @@ use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Tests\Setup\Pages\WorksWithBahaPages;
@@ -26,6 +25,8 @@ class FetchPostCommentsTest extends TestCase
         Post::factory()->create();
 
         Queue::assertPushed(FetchPostComments::class);
+
+        Queue::assertPushedOn('scrape', FetchPostComments::class);
     }
 
     /** @test */
@@ -74,6 +75,9 @@ class FetchPostCommentsTest extends TestCase
         FetchPostComments::dispatchNow($post);
 
         $this->assertDatabaseCount('comments', 2);
+
+        $this->assertEquals(Comment::find(1)->created_at, '2021-07-24 23:27:22');
+        $this->assertEquals(Comment::find(2)->created_at, '2021-07-23 19:38:14');
     }
 
     /** @test */
