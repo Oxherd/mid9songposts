@@ -1,7 +1,7 @@
 ## priority: high
 
-- [chore] upgrade laravel for queue:work --sleep
-- [feat] daily scrape
+- [feat] daily scrape in 'scrape' queue
+- [feat] when link was created, fetch their title by http request
 
 ---
 
@@ -9,7 +9,6 @@
 
 - [feat] make jobs commandable
 - [chore] migrate environment to docker?
-- [feat] when link was created, fetch their title by http request
 - [feat] a clear list indicate which post has no link and already been checkout
     - or remove InvalidLink, just focus NotRegisted site instead
 
