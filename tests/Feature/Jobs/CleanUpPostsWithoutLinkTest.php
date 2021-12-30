@@ -21,7 +21,7 @@ class CleanUpPostsWithoutLinkTest extends TestCase
 
         $this->assertTrue($post->has_music);
 
-        CleanUpPostsWithoutLink::dispatchNow();
+        CleanUpPostsWithoutLink::dispatchSync();
 
         $post->refresh();
 

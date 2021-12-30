@@ -2,13 +2,14 @@
 
 namespace Tests\Unit\Posts\Baha;
 
-use Tests\TestCase;
-use App\Posts\Baha\SearchTitle;
-use Illuminate\Support\Facades\Http;
-use App\Jobs\ScrapePostsFromSearchTitle;
-use Tests\Setup\Pages\WorksWithBahaPages;
 use App\Exceptions\NotExpectedPageException;
+use App\Jobs\ScrapeBahaPostsContinuously;
+use App\Posts\Baha\SearchTitle;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
+use Tests\Setup\Pages\WorksWithBahaPages;
+use Tests\TestCase;
 
 class SearchTitleTest extends TestCase
 {
@@ -32,6 +33,26 @@ class SearchTitleTest extends TestCase
         $this->expectException(NotExpectedPageException::class);
 
         new SearchTitle('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=123');
+    }
+
+    /** @test */
+    public function it_will_throw_exception_if_css_selector_can_not_find_corresponsive_result_in_current_page()
+    {
+        $this->expectException(NotExpectedPageException::class);
+
+        $this->fakeChangedSearchTitlePageResponse();
+
+        new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
+    }
+
+    /** @test */
+    public function it_wont_treat_no_result_as_an_error_that_need_throw_some_exception()
+    {
+        $this->fakeSearchTitleNoResultResponse();
+
+        $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
+
+        $this->assertCount(0, $searchTitle->getLinks());
     }
 
     /** @test */
@@ -63,6 +84,20 @@ class SearchTitleTest extends TestCase
     }
 
     /** @test */
+    public function it_can_check_there_is_more_page_after_current_page_or_not()
+    {
+        $this->fakeAllPageSearchTitleResponse();
+
+        $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
+
+        $this->assertTrue($searchTitle->hasNextPage());
+
+        $searchTitle = $searchTitle->nextPage();
+
+        $this->assertFalse($searchTitle->hasNextPage());
+    }
+
+    /** @test */
     public function it_can_create_another_new_instance_with_next_page_url()
     {
         $this->fakeAllPageSearchUserResponse();
@@ -90,5 +125,19 @@ class SearchTitleTest extends TestCase
         $endOfPage = $firstPage->nextPage();
 
         $this->assertNull($endOfPage->nextPage());
+    }
+
+    /** @test */
+    public function it_can_gather_result_and_dispatch_jobs_to_scrape_posts()
+    {
+        $this->fakeOnePageSearchTitleResponse();
+
+        Queue::fake();
+
+        $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
+
+        $searchTitle->handle();
+
+        Queue::assertPushed(ScrapeBahaPostsContinuously::class, 30);
     }
 }

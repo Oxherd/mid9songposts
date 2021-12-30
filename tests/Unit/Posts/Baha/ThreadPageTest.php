@@ -4,6 +4,7 @@ namespace Tests\Unit\Posts\Baha;
 
 use App\Exceptions\NotExpectedPageException;
 use App\Links\UrlString;
+use App\Models\Post;
 use App\Models\Thread;
 use App\Posts\Baha\ThreadPage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -96,6 +97,18 @@ class ThreadPageTest extends TestCase
     }
 
     /** @test */
+    public function it_will_throw_exception_if_thread_index_no_longer_available()
+    {
+        $this->fakeThreadUnavailableResponse();
+
+        $this->expectException(NotExpectedPageException::class);
+
+        $threadPage = new ThreadPage($this->bahaUrl);
+
+        $threadPage->index();
+    }
+
+    /** @test */
     public function it_can_get_title_from_scraped_page()
     {
         $this->fakePageOnePostsResponse();
@@ -168,6 +181,36 @@ class ThreadPageTest extends TestCase
     }
 
     /** @test */
+    public function it_throws_exception_when_there_are_no_posts()
+    {
+        $this->fakeThreadUnavailableResponse();
+
+        $this->expectException(NotExpectedPageException::class);
+
+        $threadPage = new ThreadPage($this->bahaUrl);
+
+        $threadPage->posts();
+    }
+
+    /** @test */
+    public function it_can_check_there_is_more_page_after_this_one_or_not()
+    {
+        $this->fakeThreadResponse();
+
+        $threadPage = new ThreadPage($this->bahaUrl);
+
+        $this->assertTrue($threadPage->hasNextPage());
+
+        $threadPage = $threadPage->nextPage();
+
+        $this->assertTrue($threadPage->hasNextPage());
+
+        $threadPage = $threadPage->nextPage();
+
+        $this->assertFalse($threadPage->hasNextPage());
+    }
+
+    /** @test */
     public function it_can_generate_a_new_instance_with_next_page_url()
     {
         $this->fakeThreadResponse();
@@ -197,5 +240,23 @@ class ThreadPageTest extends TestCase
         $threadPage = new ThreadPage($this->bahaUrl);
 
         $this->assertInstanceOf(UrlString::class, $threadPage->url());
+    }
+
+    /** @test */
+    public function it_can_persist_the_thread_and_all_posts_from_current_page_into_the_database_in_one_action()
+    {
+        $this->fakePageOnePostsResponse();
+
+        $this->assertEquals(0, Thread::count());
+        $this->assertEquals(0, Post::count());
+
+        $threadPage = new ThreadPage($this->bahaUrl);
+
+        $threadPage->handle();
+
+        $this->assertEquals(1, Thread::count());
+        $this->assertEquals(20, Post::count());
+
+        $this->assertEquals(Thread::first()->id, Post::first()->thread_id);
     }
 }

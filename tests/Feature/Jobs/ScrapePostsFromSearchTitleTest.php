@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Jobs;
 
-use App\Jobs\ScrapeBahaPosts;
+use App\Jobs\ScrapeBahaPostsContinuously;
 use App\Jobs\ScrapePostsFromSearchTitle;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -21,50 +21,20 @@ class ScrapePostsFromSearchTitleTest extends TestCase
     }
 
     /** @test */
-    public function it_get_all_related_thread_and_dispatch_each_thread_a_job_to_save_them_into_database()
+    public function it_will_resolve_and_dispatch_scrape_posts_tasks()
     {
         $this->fakeOnePageSearchTitleResponse();
 
-        ScrapePostsFromSearchTitle::dispatchNow(
-            $title = '半夜歌串一人一首',
-            $nextPage = false,
+        (new ScrapePostsFromSearchTitle(
+            $title = 'foobar',
+            $page = 1,
             $user = null
-        );
-
-        Queue::assertPushed(ScrapeBahaPosts::class, 30);
-    }
-
-    /** @test */
-    public function it_can_specify_searchable_thread_must_post_by_someone()
-    {
-        $this->fakeOnePageSearchTitleResponse();
-
-        ScrapePostsFromSearchTitle::dispatchNow(
-            $title = '半夜歌串一人一首',
-            $nextPage = false,
-            $user = 'foobar666'
-        );
-
-        Queue::assertPushed(ScrapeBahaPosts::class, 1);
-    }
-
-    /** @test */
-    public function it_can_continue_get_rest_realted_thread_and_dispatch_more_jobs_if_there_is_more_page()
-    {
-        $this->fakeAllPageSearchTitleResponse();
-
-        ScrapePostsFromSearchTitle::dispatchNow('songs', true, null);
-
-        Queue::assertPushed(ScrapeBahaPosts::class, 60);
-
-        Http::assertSentCount(2);
+        ))->handle();
 
         Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=songs';
+            return $request->url() == 'https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foobar&page=1';
         });
 
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=songs&page=2';
-        });
+        Queue::assertPushed(ScrapeBahaPostsContinuously::class, 30);
     }
 }

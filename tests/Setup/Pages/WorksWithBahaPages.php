@@ -2,7 +2,6 @@
 
 namespace Tests\Setup\Pages;
 
-use App\Jobs\FetchPostComments;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
@@ -76,11 +75,34 @@ trait WorksWithBahaPages
             ->push(File::get($this->pagesFilePath . '\search_user_p2.html'), 200);
     }
 
+    protected function fakeChangedSearchUserPageResponse()
+    {
+        Http::fake(function () {
+            $html = File::get($this->pagesFilePath . '\search_user_p1.html');
+
+            return Http::response(str_replace('b-list__main', 'changed css', $html));
+        });
+    }
+
+    protected function fakeLastSearchUserPageResponse()
+    {
+        Http::fake(function () {
+            return Http::response(File::get($this->pagesFilePath . '\search_user_p2.html'));
+        });
+    }
+
+    protected function fakeSearchUserNoResultResponse()
+    {
+        Http::fake(function () {
+            return Http::response(File::get($this->pagesFilePath . '\search_user_no_result.html'));
+        });
+    }
+
     protected function fakeOnePageSearchTitleResponse()
     {
-        Http::fakeSequence()
-            ->push(File::get($this->pagesFilePath . '\search_title_p1.html'), 200)
-            ->push('', 404);
+        Http::fake(function () {
+            return Http::response(File::get($this->pagesFilePath . '\search_title_p1.html'));
+        });
     }
 
     protected function fakeAllPageSearchTitleResponse()
@@ -89,6 +111,29 @@ trait WorksWithBahaPages
             ->push(File::get($this->pagesFilePath . '\search_title_p1.html'), 200)
             ->push(File::get($this->pagesFilePath . '\search_title_p2.html'), 200)
             ->push('', 404);
+    }
+
+    protected function fakeChangedSearchTitlePageResponse()
+    {
+        Http::fake(function () {
+            $html = File::get($this->pagesFilePath . '\search_title_p1.html');
+
+            return Http::response(str_replace('b-list-item', 'changed css', $html));
+        });
+    }
+
+    protected function fakeLastSearchTitlePageResponse()
+    {
+        Http::fake(function () {
+            return Http::response(File::get($this->pagesFilePath . '\search_title_p2.html'));
+        });
+    }
+
+    protected function fakeSearchTitleNoResultResponse()
+    {
+        Http::fake(function () {
+            return Http::response(File::get($this->pagesFilePath . '\search_title_no_result.html'));
+        });
     }
 
     protected function fakeThreadUnavailableResponse()
@@ -100,14 +145,14 @@ trait WorksWithBahaPages
 
     protected function fakeFetchSingleCommentResponse()
     {
-        Http::fake(function() {
+        Http::fake(function () {
             return Http::response(File::get($this->jsonTextPath . '\single_comment.json'), 200);
         });
     }
 
     protected function fakeFetchMultipleCommentsResponse()
     {
-        Http::fake(function() {
+        Http::fake(function () {
             return Http::response(File::get($this->jsonTextPath . '\multiple_comments.json'), 200);
         });
     }

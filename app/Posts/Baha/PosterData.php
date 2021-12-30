@@ -28,7 +28,7 @@ class PosterData
     public function __construct($account, $name)
     {
         $this->account = $account;
-        $this->name = $name;
+        $this->name = (string) $name;
     }
 
     /**

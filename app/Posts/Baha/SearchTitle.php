@@ -3,6 +3,7 @@
 namespace App\Posts\Baha;
 
 use App\Exceptions\NotExpectedPageException;
+use App\Jobs\ScrapeBahaPostsContinuously;
 use App\Links\UrlString;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -15,7 +16,7 @@ class SearchTitle
     /**
      * @property UrlString delegate UrlString to get url params
      */
-    protected $url;
+    public $url;
 
     /**
      * @property Crawler use for html interaction
@@ -45,6 +46,18 @@ class SearchTitle
         $this->html = new Crawler((string) Http::get((string) $this->url));
 
         $this->lists = $this->getResultList();
+    }
+
+    /**
+     * get all available links and dispatch corresponsive job to scrape posts
+     */
+    public function handle($user = null)
+    {
+        $this->filterByUser($user)
+            ->getLinks()
+            ->each(function ($link) {
+                ScrapeBahaPostsContinuously::dispatch($link);
+            });
     }
 
     /**
@@ -88,7 +101,7 @@ class SearchTitle
     /**
      * get a new instance with next page url if there has one
      *
-     * @return \App\Posts\Baha\SearchUser|null
+     * @return \App\Posts\Baha\SearchTitle|null
      */
     public function nextPage()
     {
@@ -123,11 +136,16 @@ class SearchTitle
      */
     protected function getResultList()
     {
-        return $this->html
-            ->filter('.b-list__row')
-            ->reduce(function (Crawler $node) {
-                return !$node->filter('.b-list_ad')->text('');
-            });
+        $lists = $this->html->filter('.b-list-item');
+
+        if (
+            !$lists->count() &&
+            !Str::contains($this->html->text(), '很抱歉，無法搜尋到有關')
+        ) {
+            throw new NotExpectedPageException('Has the html structure or CSS changed?');
+        }
+
+        return $lists;
     }
 
     /**
@@ -135,7 +153,7 @@ class SearchTitle
      *
      * @return bool
      */
-    protected function hasNextPage()
+    public function hasNextPage()
     {
         try {
             return !!$this->html->filter('.pagenow')->first()->nextAll()->text('');

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class ScrapePostsFromSearchTitle implements ShouldQueue
+class ScrapePostsFromSearchTitleContinuously implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -25,23 +25,21 @@ class ScrapePostsFromSearchTitle implements ShouldQueue
      *
      * @property bool
      */
-    protected $page;
+    public $page;
 
     /**
      * get specific result from this user
      *
      * @property string|null
      */
-    protected $user;
+    public $user;
 
     /**
      * Create a new job instance.
      *
      * @param string $title it will check string is urlencoded or not
      *
-     * @param int $page
-     *
-     * @param string $user only find this user's posts
+     * @param bool $page
      *
      * @return void
      */
@@ -64,5 +62,9 @@ class ScrapePostsFromSearchTitle implements ShouldQueue
         );
 
         $searchTitle->handle($this->user);
+
+        if ($searchTitle->hasNextPage()) {
+            self::dispatch($this->title, $this->page + 1, $this->user);
+        }
     }
 }

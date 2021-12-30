@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Jobs\ScrapePostsFromSearchUser;
+use App\Jobs\ScrapePostsFromSearchUserContinuously;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,9 +20,8 @@ class Poster extends Model
     protected static function booted()
     {
         static::created(function ($poster) {
-            ScrapePostsFromSearchUser::dispatch(
-                $poster->account,
-                $switchPage = true
+            ScrapePostsFromSearchUserContinuously::dispatch(
+                $poster->account
             );
         });
     }

@@ -3,10 +3,12 @@
 namespace Tests\Unit\Posts\Baha;
 
 use App\Exceptions\NotExpectedPageException;
-use Tests\TestCase;
+use App\Jobs\ScrapeBahaPosts;
 use App\Posts\Baha\SearchUser;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\Setup\Pages\WorksWithBahaPages;
+use Tests\TestCase;
 
 class SearchUserTest extends TestCase
 {
@@ -30,6 +32,26 @@ class SearchUserTest extends TestCase
         $this->expectException(NotExpectedPageException::class);
 
         new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6');
+    }
+
+    /** @test */
+    public function it_will_throw_exception_if_css_selector_can_not_find_corresponsive_result_in_current_page()
+    {
+        $this->expectException(NotExpectedPageException::class);
+
+        $this->fakeChangedSearchUserPageResponse();
+
+        new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
+    }
+
+    /** @test */
+    public function it_wont_treat_no_result_as_an_error_that_need_throw_some_exception()
+    {
+        $this->fakeSearchUserNoResultResponse();
+
+        $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
+
+        $this->assertCount(0, $searchUser->getLinks());
     }
 
     /** @test */
@@ -57,6 +79,20 @@ class SearchUserTest extends TestCase
     }
 
     /** @test */
+    public function it_can_check_there_is_more_page_after_current_page_or_not()
+    {
+        $this->fakeAllPageSearchUserResponse();
+
+        $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
+
+        $this->assertTrue($searchUser->hasNextPage());
+
+        $searchUser = $searchUser->nextPage();
+
+        $this->assertFalse($searchUser->hasNextPage());
+    }
+
+    /** @test */
     public function it_can_create_another_new_instance_with_next_page_url()
     {
         $this->fakeAllPageSearchUserResponse();
@@ -69,12 +105,24 @@ class SearchUserTest extends TestCase
     /** @test */
     public function it_return_null_if_there_is_no_more_page()
     {
+        $this->fakeLastSearchUserPageResponse();
+
+        $lastPage = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
+
+        $this->assertNull($lastPage->nextPage());
+    }
+
+    /** @test */
+    public function it_can_gather_result_and_dispatch_jobs_to_scrape_posts()
+    {
         $this->fakeOnePageSearchUserResponse();
+
+        Queue::fake();
 
         $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
 
-        $noMore = $searchUser->nextPage();
+        $searchUser->handle('半夜歌串一人一首');
 
-        $this->assertNull($noMore->nextPage());
+        Queue::assertPushed(ScrapeBahaPosts::class, 29);
     }
 }

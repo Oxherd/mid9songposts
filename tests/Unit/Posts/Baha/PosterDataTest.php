@@ -24,7 +24,7 @@ class PosterDataTest extends TestCase
 
         $this->assertDatabaseHas('posters', [
             'account' => 'foobar666',
-            'name' => 'JohnDoe'
+            'name' => 'JohnDoe',
         ]);
     }
 
@@ -52,5 +52,13 @@ class PosterDataTest extends TestCase
         (new PosterData('foobar666', 'Peter'))->save();
 
         $this->assertEquals('Peter', $foobar666->fresh()->name);
+    }
+
+    /** @test */
+    public function sometime_poster_name_can_be_null()
+    {
+        $noName = (new PosterData('foobar666', null))->save();
+
+        $this->assertEmpty($noName->name);
     }
 }

@@ -1,16 +1,18 @@
 ## priority: high
 
-- [feat] daily scrape in 'scrape' queue
+- [feat] daily scrape
 - [feat] when link was created, fetch their title by http request
 
 ---
 
 ## priority: not that high
 
-- [feat] make jobs commandable
 - [chore] migrate environment to docker?
 - [feat] a clear list indicate which post has no link and already been checkout
     - or remove InvalidLink, just focus NotRegisted site instead
+- [feat] SearchUser, ThreadPage check current page is greater than `pagenow` or not
+
+  > if the `page` parameter in the query string is greater than the last page, baha will show the first page causing infinite next page
 
 ---
 

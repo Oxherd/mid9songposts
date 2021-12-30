@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class ScrapePostsFromSearchUser implements ShouldQueue
+class ScrapePostsFromSearchUserContinuously implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -23,12 +23,12 @@ class ScrapePostsFromSearchUser implements ShouldQueue
      *
      * @property bool
      */
-    protected $page;
+    public $page;
 
     /**
      * only scrape post contains this title
      */
-    protected $title;
+    public $title;
 
     /**
      * Create a new job instance.
@@ -54,5 +54,9 @@ class ScrapePostsFromSearchUser implements ShouldQueue
         );
 
         $searchUser->handle($this->title);
+
+        if ($searchUser->hasNextPage()) {
+            self::dispatch($this->user, $this->page + 1, $this->title);
+        }
     }
 }

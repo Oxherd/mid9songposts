@@ -3,6 +3,7 @@
 namespace App\Posts\Baha;
 
 use App\Exceptions\NotExpectedPageException;
+use App\Jobs\ScrapeBahaPosts;
 use App\Links\UrlString;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -48,6 +49,18 @@ class SearchUser
     }
 
     /**
+     * get all available links and dispatch corresponsive job to scrape posts
+     */
+    public function handle($title)
+    {
+        $this->filter($title)
+            ->getLinks()
+            ->each(function ($link) {
+                ScrapeBahaPosts::dispatch($link);
+            });
+    }
+
+    /**
      * return all links from searchable result
      *
      * @return \Illuminate\Support\Collection wrap links array into Collection
@@ -56,7 +69,7 @@ class SearchUser
     {
         $links = $this->lists
             ->each(function (Crawler $node) {
-                $path = $node->filter('a')->first()->attr('href');
+                $path = $node->attr('href');
 
                 return "https://forum.gamer.com.tw/{$path}";
             });
@@ -75,10 +88,7 @@ class SearchUser
     {
         $this->lists = $this->lists
             ->reduce(function (Crawler $node) use ($target) {
-                return Str::contains(
-                    $node->filter('a')->first()->text(''),
-                    $target
-                );
+                return Str::contains($node->text(''), $target);
             });
 
         return $this;
@@ -120,7 +130,16 @@ class SearchUser
      */
     protected function getResultList()
     {
-        return $this->html->filter('.FM-blist3');
+        $lists = $this->html->filter('.b-list__main > a');
+
+        if (
+            !$lists->count() &&
+            !Str::contains($this->html->text(), '很抱歉，無法搜尋到有關')
+        ) {
+            throw new NotExpectedPageException('Has the html structure or CSS changed?');
+        }
+
+        return $lists;
     }
 
     /**
@@ -128,7 +147,7 @@ class SearchUser
      *
      * @return bool
      */
-    protected function hasNextPage()
+    public function hasNextPage()
     {
         try {
             return !!$this->html->filter('.pagenow')->first()->nextAll()->text('');

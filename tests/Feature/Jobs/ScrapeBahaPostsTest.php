@@ -9,7 +9,6 @@ use App\Models\Thread;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use InvalidArgumentException;
 use Tests\Setup\Pages\WorksWithBahaPages;
 use Tests\TestCase;
 
@@ -32,32 +31,6 @@ class ScrapeBahaPostsTest extends TestCase
         $this->assertCount(1, Thread::all());
         $this->assertCount(20, Post::all());
         $this->assertCount(20, Poster::all());
-    }
-
-    /** @test */
-    public function it_can_scrape_continuous_page_if_there_is_more()
-    {
-        $this->fakeThreadResponse();
-
-        ScrapeBahaPosts::dispatchSync($this->bahaUrl, $switchPage = true);
-
-        Http::assertSentCount(3);
-
-        $this->assertCount(1, Thread::all());
-        $this->assertCount(41, Post::all());
-        $this->assertCount(41, Poster::all());
-
-        Http::assertSent(function (Request $request) {
-            return $request->url() === 'https://forum.gamer.com.tw/C.php?bsn=60076&snA=6004847';
-        });
-
-        Http::assertSent(function (Request $request) {
-            return $request->url() === 'https://forum.gamer.com.tw/C.php?bsn=60076&snA=6004847&page=2';
-        });
-
-        Http::assertSent(function (Request $request) {
-            return $request->url() === 'https://forum.gamer.com.tw/C.php?bsn=60076&snA=6004847&page=3';
-        });
     }
 
     /** @test */
@@ -98,7 +71,7 @@ class ScrapeBahaPostsTest extends TestCase
     }
 
     /** @test */
-    public function it_catchs_InvalidArgumentException_and_do_nothing_because_the_thread_probably_unavailable()
+    public function it_catchs_NotExpectedPageException_and_do_nothing_since_the_thread_or_post_probably_unavailable()
     {
         $this->fakeThreadUnavailableResponse();
 

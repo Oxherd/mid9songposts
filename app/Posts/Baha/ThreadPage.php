@@ -11,7 +11,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use League\Uri\Components\Query;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ThreadPage
@@ -44,6 +43,22 @@ class ThreadPage
     }
 
     /**
+     * persist thread and following posts in current page into database
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        if (!$this->thread) {
+            $this->save();
+        }
+
+        $this->posts()->each(function (PostSection $section) {
+            $section->save($this->thread->id);
+        });
+    }
+
+    /**
      * save all thread's related data into database
      * or retrieve a existed row from database if there has one
      *
@@ -71,10 +86,14 @@ class ThreadPage
      */
     public function index()
     {
-        $url = $this->html
-            ->filter('meta[property="al:ios:url"]')
-            ->first()
-            ->attr('content');
+        try {
+            $url = $this->html
+                ->filter('meta[property="al:ios:url"]')
+                ->first()
+                ->attr('content');
+        } catch (InvalidArgumentException $e) {
+            throw new NotExpectedPageException('This thread or post no longer available.');
+        }
 
         return (new UrlString($url))->query('snA');
     }
@@ -129,13 +148,17 @@ class ThreadPage
      */
     public function posts()
     {
-        $posts = $this->html
-            ->filter('.c-section[id^="post_"]')
-            ->each(function (Crawler $post) {
-                return new PostSection($post);
-            });
+        $posts = $this->html->filter('.c-section[id^="post_"]');
 
-        return Collection::make($posts);
+        if (!$posts->count()) {
+            throw new NotExpectedPageException('Has the html structure or CSS changed?');
+        }
+
+        return Collection::make(
+            $posts->each(function (Crawler $post) {
+                return new PostSection($post);
+            })
+        );
     }
 
     /**
@@ -185,7 +208,7 @@ class ThreadPage
      *
      * @return bool
      */
-    protected function hasNextPage()
+    public function hasNextPage()
     {
         try {
             return !!$this->html->filter('.pagenow')->first()->nextAll()->text('');

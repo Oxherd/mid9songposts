@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class ScrapeBahaPosts implements ShouldQueue
+class ScrapeBahaPostsContinuously implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -48,6 +48,10 @@ class ScrapeBahaPosts implements ShouldQueue
             $threadPage->handle();
         } catch (NotExpectedPageException $e) {
             return;
+        }
+
+        if ($threadPage->hasNextPage()) {
+            self::dispatch($threadPage->url()->nextPage());
         }
     }
 }

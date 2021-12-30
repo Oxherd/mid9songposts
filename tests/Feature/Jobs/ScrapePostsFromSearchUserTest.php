@@ -21,36 +21,24 @@ class ScrapePostsFromSearchUserTest extends TestCase
     }
 
     /** @test */
-    public function it_get_all_related_posts_and_dispatch_job_in_order_to_save_them_into_database()
+    public function it_will_resolve_and_dispatch_scrape_posts_tasks()
     {
         $this->fakeOnePageSearchUserResponse();
 
-        ScrapePostsFromSearchUser::dispatchNow('foobar666');
+        (new ScrapePostsFromSearchUser(
+            $user = 'foobar666',
+            $page = 1,
+            $title = '半夜歌串一人一首')
+        )->handle();
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666&page=1';
+        });
 
         Queue::assertPushed(ScrapeBahaPosts::class, 29);
 
-        Queue::assertPushed(function(ScrapeBahaPosts $job) {
-            return $job->switchPage === true;
-        });
-    }
-
-    /** @test */
-    public function it_can_continue_get_more_posts_and_dispatch_more_jobs_in_next_page()
-    {
-        $this->fakeAllPageSearchUserResponse();
-
-        ScrapePostsFromSearchUser::dispatchNow('foobar666', $switchPage = true);
-
-        Queue::assertPushed(ScrapeBahaPosts::class, 29 + 30);
-
-        Http::assertSentCount(2);
-
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666';
-        });
-
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666&page=2';
+        Queue::assertPushed(function (ScrapeBahaPosts $job) {
+            return $job->url == 'https://forum.gamer.com.tw/Co.php?bsn=60076&sn=80190131';
         });
     }
 }

@@ -25,8 +25,6 @@ class FetchPostCommentsTest extends TestCase
         Post::factory()->create();
 
         Queue::assertPushed(FetchPostComments::class);
-
-        Queue::assertPushedOn('scrape', FetchPostComments::class);
     }
 
     /** @test */
@@ -38,7 +36,7 @@ class FetchPostCommentsTest extends TestCase
 
         $post = Post::factory()->create();
 
-        FetchPostComments::dispatchNow($post);
+        FetchPostComments::dispatchSync($post);
 
         Http::assertSent(function (Request $request) use ($post) {
             return $request->url() === "https://forum.gamer.com.tw/ajax/moreCommend.php?bsn=60076&snB={$post->no}";
@@ -54,7 +52,7 @@ class FetchPostCommentsTest extends TestCase
 
         $this->assertDatabaseCount('comments', 0);
 
-        FetchPostComments::dispatchNow($post);
+        FetchPostComments::dispatchSync($post);
 
         $this->assertDatabaseHas('comments', [
             'content' => 'This is my comment.',
@@ -72,7 +70,7 @@ class FetchPostCommentsTest extends TestCase
 
         $this->assertDatabaseCount('comments', 0);
 
-        FetchPostComments::dispatchNow($post);
+        FetchPostComments::dispatchSync($post);
 
         $this->assertDatabaseCount('comments', 2);
 
@@ -87,7 +85,7 @@ class FetchPostCommentsTest extends TestCase
 
         $post = Post::factory()->create();
 
-        FetchPostComments::dispatchNow($post);
+        FetchPostComments::dispatchSync($post);
 
         $comment = Comment::first();
 
@@ -101,7 +99,7 @@ class FetchPostCommentsTest extends TestCase
 
         $post = Post::factory()->create();
 
-        FetchPostComments::dispatchNow($post);
+        FetchPostComments::dispatchSync($post);
 
         $comment = Comment::first();
 
