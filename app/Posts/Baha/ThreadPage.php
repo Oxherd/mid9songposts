@@ -110,7 +110,7 @@ class ThreadPage
      */
     public function title()
     {
-        return Str::after($this->html->filter('.c-post__header__title')->text(), ':');
+        return Str::between($this->html->filter('title')->text(), ':', ' @');
     }
 
     /**
