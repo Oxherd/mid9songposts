@@ -1,7 +1,6 @@
 ## priority: high
 
 - [feat] daily scrape
-- [feat] when link was created, fetch their title by http request
 
 ---
 

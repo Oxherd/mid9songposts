@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\ScrapeLinkTitle;
 use App\Links\Sites\SiteFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,13 @@ use Illuminate\Support\Str;
 class Link extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::created(function ($link) {
+            ScrapeLinkTitle::dispatch($link);
+        });
+    }
 
     /**
      * a mutator for other attributes when set 'original' attribute
