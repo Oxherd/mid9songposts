@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\ScrapePostsFromSearchTitle;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -24,7 +25,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            (new ScrapePostsFromSearchTitle)->handle();
+        })->dailyAt('23:00');
+
+        $schedule->command('queue:work', ['--stop-when-empty', '--rest=3'])->dailyAt('23:30');
     }
 
     /**
@@ -34,7 +39,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

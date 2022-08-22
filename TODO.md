@@ -1,6 +1,6 @@
 ## priority: high
 
-- [feat] daily scrape
+- [docs] migrate todo list to github issues
 
 ---
 
