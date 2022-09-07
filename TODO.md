@@ -1,6 +1,7 @@
 ## priority: high
 
 - [docs] migrate todo list to github issues
+- [feat] seperate FetchPostComments job into its own queue to postpone schedule time
 
 ---
 

@@ -20,7 +20,7 @@ class CreatePostsTable extends Migration
             $table->string('no');
             $table->longText('content')->nullable();
             $table->timestamps();
-            $table->dateTime('inserted_at');
+            $table->timestamp('inserted_at')->useCurrent();
         });
     }
 
