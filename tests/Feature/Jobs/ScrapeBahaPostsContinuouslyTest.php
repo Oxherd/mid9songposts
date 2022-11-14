@@ -6,20 +6,15 @@ use App\Jobs\ScrapeBahaPostsContinuously;
 use App\Models\Post;
 use App\Models\Poster;
 use App\Models\Thread;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-use Tests\Setup\Pages\WorksWithBahaPages;
 use Tests\TestCase;
 
 class ScrapeBahaPostsContinuouslyTest extends TestCase
 {
-    use RefreshDatabase;
-    use WorksWithBahaPages;
-
     /** @test */
     public function it_will_save_the_thread_and_all_posts_and_all_posters_from_scraped_html()
     {
-        $this->fakePageOnePostsResponse();
+        $this->mockClientWithThreadFirstPage();
 
         $this->assertCount(0, Thread::all());
         $this->assertCount(0, Post::all());
@@ -35,9 +30,7 @@ class ScrapeBahaPostsContinuouslyTest extends TestCase
     /** @test */
     public function it_catchs_NotExpectedPageException_and_do_nothing_since_the_thread_or_post_probably_unavailable()
     {
-        $this->withoutExceptionHandling();
-
-        $this->fakeThreadUnavailableResponse();
+        $this->mockClientWithThreadUnavailable();
 
         ScrapeBahaPostsContinuously::dispatchSync($this->bahaUrl);
 
@@ -49,7 +42,7 @@ class ScrapeBahaPostsContinuouslyTest extends TestCase
     {
         Queue::fake();
 
-        $this->fakePageOnePostsResponse();
+        $this->mockClientWithThreadFirstPage();
 
         (new ScrapeBahaPostsContinuously($this->bahaUrl))->handle();
 

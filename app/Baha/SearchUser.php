@@ -1,28 +1,16 @@
 <?php
 
-namespace App\Posts\Baha;
+namespace App\Baha;
 
 use App\Exceptions\NotExpectedPageException;
-use App\Jobs\ScrapeBahaPostsContinuously;
-use App\Links\UrlString;
+use App\Jobs\ScrapeBahaPosts;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
 
-class SearchTitle
+class SearchUser extends Page
 {
-    /**
-     * @property UrlString delegate UrlString to get url params
-     */
-    public $url;
-
-    /**
-     * @property Crawler use for html interaction
-     */
-    protected $html;
-
     /**
      * store all searched result
      *
@@ -30,20 +18,9 @@ class SearchTitle
      */
     protected $lists;
 
-    /**
-     * it scrape page for further usage from given url
-     *
-     * then extract all searchable result
-     *
-     * @param string $url
-     */
     public function __construct($url)
     {
-        $this->url = $url instanceof UrlString ? $url : new UrlString($url);
-
-        $this->ensureIsExpectedUrl();
-
-        $this->html = new Crawler((string) Http::get((string) $this->url));
+        parent::__construct($url);
 
         $this->lists = $this->getResultList();
     }
@@ -51,12 +28,12 @@ class SearchTitle
     /**
      * get all available links and dispatch corresponsive job to scrape posts
      */
-    public function handle($user = null)
+    public function handle($title)
     {
-        $this->filterByUser($user)
+        $this->filter($title)
             ->getLinks()
             ->each(function ($link) {
-                ScrapeBahaPostsContinuously::dispatch($link);
+                ScrapeBahaPosts::dispatch($link);
             });
     }
 
@@ -69,7 +46,7 @@ class SearchTitle
     {
         $links = $this->lists
             ->each(function (Crawler $node) {
-                $path = $node->filter('.b-list__main__title')->first()->attr('href');
+                $path = $node->attr('href');
 
                 return "https://forum.gamer.com.tw/{$path}";
             });
@@ -78,21 +55,17 @@ class SearchTitle
     }
 
     /**
-     * filter down searched result by specific user
+     * filter down the searched result with target key word
      *
-     * @param string $user
+     * @param string $target the key word from thread title
      *
-     * @return \App\Posts\Baha\SearchTitle
+     * @return \App\Baha\SearchUser
      */
-    public function filterByUser($user = null)
+    public function filter($target)
     {
-        if (!$user) {
-            return $this;
-        }
-
         $this->lists = $this->lists
-            ->reduce(function (Crawler $node) use ($user) {
-                return $node->filter('.b-list__count__user')->text('') === $user;
+            ->reduce(function (Crawler $node) use ($target) {
+                return Str::contains($node->text(''), $target);
             });
 
         return $this;
@@ -101,7 +74,7 @@ class SearchTitle
     /**
      * get a new instance with next page url if there has one
      *
-     * @return \App\Posts\Baha\SearchTitle|null
+     * @return \App\Baha\SearchUser|null
      */
     public function nextPage()
     {
@@ -117,9 +90,9 @@ class SearchTitle
     {
         if (
             $this->url->domain() === 'forum.gamer.com.tw' &&
-            $this->url->path() === '/B.php' &&
+            $this->url->path() === '/Bo.php' &&
             $this->url->hasQuery('q') &&
-            $this->url->query('qt') == '1'
+            $this->url->hasQuery('qt')
         ) {
             return;
         }
@@ -130,13 +103,11 @@ class SearchTitle
     /**
      * extract all searchable result from scraped html
      *
-     * add filter get rid of ad row
-     *
      * @return \Symfony\Component\DomCrawler\Crawler
      */
     protected function getResultList()
     {
-        $lists = $this->html->filter('.b-list-item');
+        $lists = $this->html->filter('.b-list__main > a');
 
         if (
             !$lists->count() &&

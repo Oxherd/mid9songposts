@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Baha\PosterData;
 use App\Models\Comment;
 use App\Models\Post;
-use App\Posts\Baha\PosterData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,11 +44,12 @@ class FetchPostComments implements ShouldQueue
         }
 
         collect($response->json())->except('next_snC')->each(function ($data) {
-            Comment::create([
+            Comment::updateOrCreate([
                 'post_id' => $this->post->id,
                 'poster_id' => (new PosterData($data['userid'], $data['nick']))->save()->id,
                 'content' => $data['content'],
                 'created_at' => $data['wtime'],
+            ], [
                 'inserted_at' => now()->toDateTimeString(),
             ]);
         });

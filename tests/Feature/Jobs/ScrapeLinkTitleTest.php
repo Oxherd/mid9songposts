@@ -4,17 +4,14 @@ namespace Tests\Feature\Jobs;
 
 use App\Jobs\ScrapeLinkTitle;
 use App\Models\Link;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\Setup\Pages\WorksWithYoutube;
 use Tests\TestCase;
 
 class ScrapeLinkTitleTest extends TestCase
 {
-    use RefreshDatabase;
     use WorksWithYoutube;
 
     /** @test */

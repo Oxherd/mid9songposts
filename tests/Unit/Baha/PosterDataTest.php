@@ -1,16 +1,13 @@
 <?php
 
-namespace Tests\Unit\Posts\Baha;
+namespace Tests\Unit\Baha;
 
+use App\Baha\PosterData;
 use App\Models\Poster;
-use App\Posts\Baha\PosterData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PosterDataTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @test */
     public function it_can_save_poster_data_into_database()
     {

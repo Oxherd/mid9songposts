@@ -5,16 +5,11 @@ namespace Tests\Feature\Jobs;
 use App\Jobs\FetchCommentsFromExistedPosts;
 use App\Models\Comment;
 use App\Models\Post;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Tests\Setup\Pages\WorksWithBahaPages;
 use Tests\TestCase;
 
 class FetchCommentsFromExistedPostsTest extends TestCase
 {
-    use RefreshDatabase;
-    use WorksWithBahaPages;
-
     /**
      * the reason why not using Queue::fake is
      * Queue::bulk in FetchPostComments::class won't trigger pushed events

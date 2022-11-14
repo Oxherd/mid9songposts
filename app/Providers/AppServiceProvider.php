@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Panther\Client;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(Client::class, function ($app) {
+            return Client::createFirefoxClient();
+        });
     }
 
     /**

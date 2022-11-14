@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Posts\Baha\SearchTitle;
+use App\Baha\SearchTitle;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

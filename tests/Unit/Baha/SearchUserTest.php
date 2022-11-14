@@ -1,31 +1,15 @@
 <?php
 
-namespace Tests\Unit\Posts\Baha;
+namespace Tests\Unit\Baha;
 
+use App\Baha\SearchUser;
 use App\Exceptions\NotExpectedPageException;
 use App\Jobs\ScrapeBahaPosts;
-use App\Posts\Baha\SearchUser;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use Tests\Setup\Pages\WorksWithBahaPages;
 use Tests\TestCase;
 
 class SearchUserTest extends TestCase
 {
-    use WorksWithBahaPages;
-
-    /** @test */
-    public function it_send_a_http_request_to_create_a_new_instance()
-    {
-        $this->fakeOnePageSearchUserResponse();
-
-        new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
-
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666';
-        });
-    }
-
     /** @test */
     public function given_url_must_be_expected_url_string()
     {
@@ -35,19 +19,19 @@ class SearchUserTest extends TestCase
     }
 
     /** @test */
-    public function it_will_throw_exception_if_css_selector_can_not_find_corresponsive_result_in_current_page()
+    public function it_will_throw_exception_if_target_class_tag_changed_in_search_user_page()
     {
         $this->expectException(NotExpectedPageException::class);
 
-        $this->fakeChangedSearchUserPageResponse();
+        $this->mockClientWithSearchUserPageClassTagChanged();
 
         new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
     }
 
     /** @test */
-    public function it_wont_treat_no_result_as_an_error_that_need_throw_some_exception()
+    public function it_wont_throw_NotExpectedPageException_if_there_is_no_results_in_search_user_page()
     {
-        $this->fakeSearchUserNoResultResponse();
+        $this->mockClientWithSearchUserNoResult();
 
         $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
 
@@ -57,7 +41,7 @@ class SearchUserTest extends TestCase
     /** @test */
     public function it_can_get_all_searchable_result_as_link_in_string_format()
     {
-        $this->fakeOnePageSearchUserResponse();
+        $this->mockClientWithSearchUserFirstPage();
 
         $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
 
@@ -67,7 +51,7 @@ class SearchUserTest extends TestCase
     /** @test */
     public function it_can_filter_seached_result_by_provide_key_word()
     {
-        $this->fakeOnePageSearchUserResponse();
+        $this->mockClientWithSearchUserFirstPage();
 
         $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
 
@@ -81,7 +65,7 @@ class SearchUserTest extends TestCase
     /** @test */
     public function it_can_check_there_is_more_page_after_current_page_or_not()
     {
-        $this->fakeAllPageSearchUserResponse();
+        $this->mockClientWithSearchUserAll2Pages();
 
         $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
 
@@ -95,7 +79,7 @@ class SearchUserTest extends TestCase
     /** @test */
     public function it_can_create_another_new_instance_with_next_page_url()
     {
-        $this->fakeAllPageSearchUserResponse();
+        $this->mockClientWithSearchUserAll2Pages();
 
         $searchUser = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
 
@@ -105,7 +89,7 @@ class SearchUserTest extends TestCase
     /** @test */
     public function it_return_null_if_there_is_no_more_page()
     {
-        $this->fakeLastSearchUserPageResponse();
+        $this->mockClientWithSearchUserLastPage();
 
         $lastPage = new SearchUser('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=foobar666');
 
@@ -115,7 +99,7 @@ class SearchUserTest extends TestCase
     /** @test */
     public function it_can_gather_result_and_dispatch_jobs_to_scrape_posts()
     {
-        $this->fakeOnePageSearchUserResponse();
+        $this->mockClientWithSearchUserFirstPage();
 
         Queue::fake();
 

@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Exceptions\NotExpectedPageException;
-use App\Posts\Baha\ThreadPage;
+use App\Baha\ThreadPage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

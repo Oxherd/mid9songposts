@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Posts\Baha;
+namespace App\Baha;
 
 use App\Models\Poster;
 
@@ -41,10 +41,10 @@ class PosterData
     public function save()
     {
         return $this->poster ??
-        $this->poster = Poster::updateOrCreate([
-            'account' => $this->account,
-        ], [
-            'name' => $this->name,
-        ]);
+            $this->poster = Poster::updateOrCreate([
+                'account' => $this->account,
+            ], [
+                'name' => $this->name,
+            ]);
     }
 }

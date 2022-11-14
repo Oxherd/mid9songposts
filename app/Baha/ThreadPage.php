@@ -1,46 +1,23 @@
 <?php
 
-namespace App\Posts\Baha;
+namespace App\Baha;
 
+use App\Baha\PostSection;
 use App\Exceptions\NotExpectedPageException;
 use App\Links\UrlString;
 use App\Models\Thread;
-use App\Posts\Baha\PostSection;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
 
-class ThreadPage
+class ThreadPage extends Page
 {
     /**
-     * @property Crawler use for html interaction
-     */
-    protected $html;
-
-    /**
-     * @property Thread
+     * @property \App\Models\Thread
      */
     protected $thread;
-
-    /**
-     * @property UrlString delegate UrlString to get url params
-     */
-    protected $url;
-
-    /**
-     * @param string|mixed $url
-     */
-    public function __construct($url)
-    {
-        $this->url = $url instanceof UrlString ? $url : new UrlString($url);
-
-        $this->ensureIsExpectedUrl();
-
-        $this->html = new Crawler((string) Http::get($url));
-    }
 
     /**
      * persist thread and following posts in current page into database
@@ -69,12 +46,12 @@ class ThreadPage
     public function save()
     {
         return $this->thread ??
-        $this->thread = Thread::firstOrCreate([
-            'no' => $this->index(),
-        ], [
-            'title' => $this->title(),
-            'date' => $this->date(),
-        ]);
+            $this->thread = Thread::firstOrCreate([
+                'no' => $this->index(),
+            ], [
+                'title' => $this->title(),
+                'date' => $this->date(),
+            ]);
     }
 
     /**
@@ -110,7 +87,7 @@ class ThreadPage
      */
     public function title()
     {
-        return Str::between($this->html->filter('title')->text(), ':', ' @');
+        return Str::between($this->cachedClient->getTitle(), ':', ' @');
     }
 
     /**
@@ -144,7 +121,7 @@ class ThreadPage
     /**
      * get all posts from this thread page
      *
-     * @return Collection[PostSection]
+     * @return Collection<PostSection>
      */
     public function posts()
     {
@@ -156,7 +133,12 @@ class ThreadPage
 
         return Collection::make(
             $posts->each(function (Crawler $post) {
-                return new PostSection($post);
+                /** @var \App\Baha\PostSection */
+                $postSection = app(PostSection::class);
+
+                $postSection->setHTMLCrawler($post);
+
+                return $postSection;
             })
         );
     }
@@ -186,7 +168,7 @@ class ThreadPage
     }
 
     /**
-     * ensure url/page is expected target in order to fetch data correctly
+     * ensure url/page is expected target before scrape content
      *
      * @throws NotExpectedPageException
      */

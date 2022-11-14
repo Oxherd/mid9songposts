@@ -1,32 +1,16 @@
 <?php
 
-namespace Tests\Unit\Posts\Baha;
+namespace Tests\Unit\Baha;
 
+use App\Baha\SearchTitle;
 use App\Exceptions\NotExpectedPageException;
 use App\Jobs\ScrapeBahaPostsContinuously;
-use App\Posts\Baha\SearchTitle;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use Tests\Setup\Pages\WorksWithBahaPages;
 use Tests\TestCase;
 
 class SearchTitleTest extends TestCase
 {
-    use WorksWithBahaPages;
-
-    /** @test */
-    public function it_send_a_http_request_to_fetch_sreach_title_results_for_further_use()
-    {
-        $this->fakeOnePageSearchTitleResponse();
-
-        new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
-
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo';
-        });
-    }
-
     /** @test */
     public function given_url_must_be_expected_url_string()
     {
@@ -36,11 +20,11 @@ class SearchTitleTest extends TestCase
     }
 
     /** @test */
-    public function it_will_throw_exception_if_css_selector_can_not_find_corresponsive_result_in_current_page()
+    public function it_will_throw_exception_if_target_class_tag_in_search_title_page()
     {
         $this->expectException(NotExpectedPageException::class);
 
-        $this->fakeChangedSearchTitlePageResponse();
+        $this->mockClientWithSearchTitleClassTagChanged();
 
         new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
     }
@@ -48,7 +32,7 @@ class SearchTitleTest extends TestCase
     /** @test */
     public function it_wont_treat_no_result_as_an_error_that_need_throw_some_exception()
     {
-        $this->fakeSearchTitleNoResultResponse();
+        $this->mockClientWithSearchTitleNoResult();
 
         $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
 
@@ -58,7 +42,7 @@ class SearchTitleTest extends TestCase
     /** @test */
     public function it_can_get_all_searchable_result_as_link()
     {
-        $this->fakeOnePageSearchTitleResponse();
+        $this->mockClientWithSearchTitleFirstPage();
 
         $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
 
@@ -72,7 +56,7 @@ class SearchTitleTest extends TestCase
     /** @test */
     public function it_can_filter_search_results_by_specify_user()
     {
-        $this->fakeOnePageSearchTitleResponse();
+        $this->mockClientWithSearchTitleFirstPage();
 
         $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
 
@@ -86,7 +70,7 @@ class SearchTitleTest extends TestCase
     /** @test */
     public function it_can_check_there_is_more_page_after_current_page_or_not()
     {
-        $this->fakeAllPageSearchTitleResponse();
+        $this->mockClientWithSearchTitleAll2Pages();
 
         $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
 
@@ -100,37 +84,27 @@ class SearchTitleTest extends TestCase
     /** @test */
     public function it_can_create_another_new_instance_with_next_page_url()
     {
-        $this->fakeAllPageSearchUserResponse();
+        $this->mockClientWithSearchTitleAll2Pages();
 
         $searchTitle = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
 
         $this->assertInstanceOf(SearchTitle::class, $searchTitle->nextPage());
-
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo';
-        });
-
-        Http::assertSent(function ($request) {
-            return $request->url() === 'https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo&page=2';
-        });
     }
 
     /** @test */
     public function it_return_null_if_there_is_no_more_page()
     {
-        $this->fakeAllPageSearchUserResponse();
+        $this->mockClientWithSearchTitleLastPage();
 
-        $firstPage = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
+        $lastPage = new SearchTitle('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=foo');
 
-        $endOfPage = $firstPage->nextPage();
-
-        $this->assertNull($endOfPage->nextPage());
+        $this->assertNull($lastPage->nextPage());
     }
 
     /** @test */
     public function it_can_gather_result_and_dispatch_jobs_to_scrape_posts()
     {
-        $this->fakeOnePageSearchTitleResponse();
+        $this->mockClientWithSearchTitleFirstPage();
 
         Queue::fake();
 

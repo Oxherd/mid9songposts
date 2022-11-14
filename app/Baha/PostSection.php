@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Posts\Baha;
+namespace App\Baha;
 
 use App\Models\Post;
-use App\Models\Poster;
-use App\Models\Thread;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
@@ -12,21 +10,18 @@ use Symfony\Component\DomCrawler\Crawler;
 class PostSection
 {
     /**
-     * @property Crawler for html interact
+     * @property \Symfony\Component\DomCrawler\Crawler for html interact
      */
     protected $html;
 
     /**
-     * @property Post
+     * @property \App\Models\Post
      */
     protected $post;
 
-    /**
-     * @param string|mixed $html
-     */
-    public function __construct($html)
+    public function setHTMLCrawler(Crawler $crawler)
     {
-        $this->html = $html instanceof Crawler ? $html : new Crawler($html);
+        $this->html = $crawler;
     }
 
     /**
@@ -43,18 +38,18 @@ class PostSection
     public function save($thread_id = null)
     {
         return $this->post ??
-        $this->post = Post::firstOrCreate(
-            [
-                'poster_id' => $this->poster()->save()->id,
-                'thread_id' => $thread_id,
-                'no' => $this->index(),
-            ],
-            [
-                'content' => $this->content(),
-                'created_at' => $this->createdAt(),
-                'inserted_at' => now()->toDateTimeString(),
-            ]
-        );
+            $this->post = Post::updateOrCreate(
+                [
+                    'poster_id' => $this->poster()->save()->id,
+                    'thread_id' => $thread_id,
+                    'no' => $this->index(),
+                ],
+                [
+                    'content' => $this->content(),
+                    'created_at' => $this->createdAt(),
+                    'inserted_at' => now()->toDateTimeString(),
+                ]
+            );
     }
 
     /**
@@ -64,11 +59,11 @@ class PostSection
      *
      * @return string
      *
-     * @throws InvalidArgumentException if somehow can't get expected html
+     * @throws \InvalidArgumentException if somehow can't get expected html
      */
     public function index()
     {
-        return Str::after($this->html->filter('.c-section')->attr('id'), 'post_');
+        return Str::after($this->html->filter('.c-article')->attr('id'), 'cf');
     }
 
     /**
@@ -78,7 +73,13 @@ class PostSection
      */
     public function content()
     {
-        return urldecode($this->html->filter('.c-article__content')->html());
+        /** @var \Symfony\Component\Panther\DomCrawler\Crawler */
+        $crawler = $this->html->filter('.c-article__content');
+
+        /** @var \Facebook\WebDriver\Remote\RemoteWebElement */
+        $webElement = $crawler->getElement(0);
+
+        return urldecode($webElement->getDomProperty('innerHTML'));
     }
 
     /**
@@ -94,7 +95,7 @@ class PostSection
     /**
      * extract poster data into its own instance
      *
-     * @return PosterData
+     * @return \App\Baha\PosterData
      */
     public function poster()
     {

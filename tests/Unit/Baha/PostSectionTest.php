@@ -1,26 +1,20 @@
 <?php
 
-namespace Tests\Unit\Posts\Baha;
+namespace Tests\Unit\Baha;
 
+use App\Baha\PosterData;
+use App\Baha\PostSection;
 use App\Models\Post;
 use App\Models\Poster;
 use App\Models\Thread;
-use App\Posts\Baha\PosterData;
-use App\Posts\Baha\PostSection;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
-use Tests\Setup\Pages\WorksWithBahaPages;
 use Tests\TestCase;
 
 class PostSectionTest extends TestCase
 {
-    use WorksWithBahaPages;
-    use RefreshDatabase;
-
     /** @test */
     public function it_can_save_post_includes_poster_data_into_database()
     {
-        $postSection = new PostSection($this->postSectionHtml());
+        $postSection = app(PostSection::class);
 
         $this->assertCount(0, Post::all());
         $this->assertCount(0, Poster::all());
@@ -40,7 +34,7 @@ class PostSectionTest extends TestCase
     /** @test */
     public function saved_post_is_related_to_a_poster_from_same_section()
     {
-        (new PostSection($this->postSectionHtml()))->save();
+        app(PostSection::class)->save();
 
         $post = Post::first();
         $poster = Poster::first();
@@ -51,7 +45,7 @@ class PostSectionTest extends TestCase
     /** @test */
     public function it_wont_create_same_two_row_of_posts_into_database()
     {
-        $postSection = new PostSection($this->postSectionHtml());
+        $postSection = app(PostSection::class);
 
         $postSection->save();
 
@@ -65,7 +59,7 @@ class PostSectionTest extends TestCase
     /** @test */
     public function passing_thread_id_param_to_create_relationship_with_target_thread()
     {
-        $postSection = new PostSection($this->postSectionHtml());
+        $postSection = app(PostSection::class);
 
         $thread = Thread::create([
             'no' => 'thread_no',
@@ -81,7 +75,7 @@ class PostSectionTest extends TestCase
     /** @test */
     public function it_can_get_post_index_from_html_section()
     {
-        $postSection = new PostSection($this->postSectionHtml());
+        $postSection = app(PostSection::class);
 
         $this->assertEquals('69887489', $postSection->index());
     }
@@ -89,15 +83,15 @@ class PostSectionTest extends TestCase
     /** @test */
     public function it_can_get_post_content_from_html_section()
     {
-        $postSection = new PostSection($this->postSectionHtml());
+        $postSection = app(PostSection::class);
 
-        $this->assertTrue(Str::contains($postSection->content(), '今天根本就夏天吧'));
+        $this->assertStringContainsString('今天根本就夏天吧', $postSection->content());
     }
 
     /** @test */
     public function it_can_get_the_post_created_time_from_html_section()
     {
-        $postSection = new PostSection($this->postSectionHtml());
+        $postSection = app(PostSection::class);
 
         $this->assertEquals('2020-11-07 23:10:35', $postSection->createdAt());
     }
@@ -105,7 +99,7 @@ class PostSectionTest extends TestCase
     /** @test */
     public function it_will_pass_poster_data_into_its_own_instance()
     {
-        $postSection = new PostSection($this->postSectionHtml());
+        $postSection = app(PostSection::class);
 
         $this->assertInstanceOf(PosterData::class, $postSection->poster());
     }
