@@ -18,6 +18,7 @@ class CreatePostsTable extends Migration
             $table->foreignId('poster_id')->constrained();
             $table->foreignId('thread_id')->nullable();
             $table->string('no');
+            $table->boolean('has_music')->default(true);
             $table->longText('content')->nullable();
             $table->timestamps();
             $table->timestamp('inserted_at')->useCurrent();

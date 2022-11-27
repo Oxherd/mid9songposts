@@ -19,6 +19,7 @@ class CreateLinksTable extends Migration
             $table->foreignId('poster_id');
             $table->string('site')->nullable();
             $table->text('resource_id')->nullable();
+            $table->text('title')->nullable();
             $table->text('original');
             $table->timestamps();
         });
