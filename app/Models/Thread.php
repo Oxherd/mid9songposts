@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Thread extends Model
 {
     use HasFactory;
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function posters()
+    {
+        return $this->belongsToMany(Poster::class, 'posts');
+    }
 }
