@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Jobs\ScrapePostsFromSearchUserContinuously;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,6 +24,14 @@ class Poster extends Model
             ScrapePostsFromSearchUserContinuously::dispatch(
                 $poster->account
             );
+        });
+    }
+
+    protected function avatar(): Attribute
+    {
+        return Attribute::make(function ($value, $attributes) {
+            $account = strtolower($attributes['account']);
+            return "https://avatar2.bahamut.com.tw/avataruserpic/{$account[0]}/{$account[1]}/{$account}/{$account}_s.png";
         });
     }
 

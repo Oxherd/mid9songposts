@@ -21,6 +21,11 @@ class Spotify extends SiteContract
         return "https://open.spotify.com/track/{$resource_id}";
     }
 
+    public static function embeddedUrl($resource_id)
+    {
+        return "https://open.spotify.com/embed/track/{$resource_id}";
+    }
+
     /**
      * check each condition is passable and return extracted result
      *

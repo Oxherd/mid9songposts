@@ -67,4 +67,13 @@ class YoutubeTest extends TestCase
             Youtube::generalUrl('dQw4w9WgXcQ')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            Youtube::embeddedUrl('dQw4w9WgXcQ')
+        );
+    }
 }

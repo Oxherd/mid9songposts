@@ -26,7 +26,7 @@ class PostFactory extends Factory
             'poster_id' => Poster::factory(),
             'no' => (string) $this->faker->randomNumber(),
             'has_music' => true,
-            'content' => '<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Link</a>',
+            'content' => '<iframe data-src="https://www.youtube.com/embed/CpxQPlNP-nk?wmode=transparent"></iframe>',
             'inserted_at' => now()->toDateTimeString(),
         ];
     }

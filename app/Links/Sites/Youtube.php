@@ -25,6 +25,11 @@ class Youtube extends SiteContract
         return "https://www.youtube.com/watch?v={$resource_id}";
     }
 
+    public static function embeddedUrl($resource_id)
+    {
+        return "https://www.youtube.com/embed/{$resource_id}";
+    }
+
     /**
      * check given url is provide video or not
      *
@@ -33,9 +38,9 @@ class Youtube extends SiteContract
     protected function isNotVideo()
     {
         return
-        !$this->url->hasQuery('v') &&
-        !$this->isShortUrl() &&
-        !$this->isEmbedUrl();
+            !$this->url->hasQuery('v') &&
+            !$this->isShortUrl() &&
+            !$this->isEmbedUrl();
     }
 
     /**

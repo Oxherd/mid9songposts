@@ -62,4 +62,15 @@ class LinkTest extends TestCase
             $link->general()
         );
     }
+
+    /** @test */
+    public function it_can_get_a_embedded_url_string_from_resource_id()
+    {
+        $link = Link::make(['original' => 'https://music.youtube.com/watch?v=dQw4w9WgXcQ']);
+
+        $this->assertEquals(
+            'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            $link->embedded()
+        );
+    }
 }

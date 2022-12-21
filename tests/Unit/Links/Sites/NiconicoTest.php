@@ -47,4 +47,13 @@ class NiconicoTest extends TestCase
             Niconico::generalUrl('sm38041901')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://embed.nicovideo.jp/watch/sm38041901',
+            Niconico::embeddedUrl('sm38041901')
+        );
+    }
 }

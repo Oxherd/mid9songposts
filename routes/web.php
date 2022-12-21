@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ThreadController::class, 'index']);
 Route::get('/month/{month?}', [ThreadController::class, 'index'])->name('threads.month');
+Route::get('/threads/{thread:date}', [ThreadController::class, 'show'])->name('threads.show');

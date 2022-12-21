@@ -42,6 +42,11 @@ class Link extends Model
         $this->attributes['resource_id'] = $siteFactory->getResourceId();
     }
 
+    public function post()
+    {
+        return $this->belongsTo(Post::class);
+    }
+
     /**
      * get a general version of Link's url
      *
@@ -49,12 +54,20 @@ class Link extends Model
      */
     public function general()
     {
-        if (!$this->attributes['resource_id']) {
-            return null;
-        }
-
         $site = SiteFactory::make($this->attributes['site']);
 
         return $site::generalUrl($this->attributes['resource_id']);
+    }
+
+    /**
+     * get a embedded version of Link's url
+     *
+     * @return string
+     */
+    public function embedded()
+    {
+        $site = SiteFactory::make($this->attributes['site']);
+
+        return $site::embeddedUrl($this->attributes['resource_id']);
     }
 }

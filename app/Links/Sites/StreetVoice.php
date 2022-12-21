@@ -2,6 +2,8 @@
 
 namespace App\Links\Sites;
 
+use Illuminate\Support\Str;
+
 class StreetVoice extends SiteContract
 {
     public function name()
@@ -30,6 +32,13 @@ class StreetVoice extends SiteContract
     public static function generalUrl($resource_id)
     {
         return "https://streetvoice.com/{$resource_id}";
+    }
+
+    public static function embeddedUrl($resource_id)
+    {
+        $resource_id = Str::between($resource_id, 'songs/', '/');
+
+        return "https://streetvoice.com/music/embed/?id={$resource_id}";
     }
 
     /**

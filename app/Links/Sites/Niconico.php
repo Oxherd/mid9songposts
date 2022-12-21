@@ -20,4 +20,9 @@ class Niconico extends SiteContract
     {
         return "https://www.nicovideo.jp/watch/{$resource_id}";
     }
+
+    public static function embeddedUrl($resource_id)
+    {
+        return "https://embed.nicovideo.jp/watch/{$resource_id}";
+    }
 }

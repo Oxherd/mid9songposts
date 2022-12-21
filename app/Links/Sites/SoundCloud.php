@@ -40,6 +40,13 @@ class SoundCloud extends SiteContract
         return "https://soundcloud.com/{$resource_id}";
     }
 
+    public static function embeddedUrl($resource_id)
+    {
+        $resource_id = Str::after($resource_id, '?tracks=');
+
+        return "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{$resource_id}";
+    }
+
     /**
      * extract SoundCloud's music id (soundcloud://sounds:xxxxx) from scraped html
      *
@@ -55,8 +62,8 @@ class SoundCloud extends SiteContract
         $metadata = $html->filter('meta[property="al:android:url"]')->attr('content');
 
         return
-        Str::contains($metadata, '//sounds') ?
-        Str::after($metadata, '//sounds:') :
-        null;
+            Str::contains($metadata, '//sounds') ?
+            Str::after($metadata, '//sounds:') :
+            null;
     }
 }

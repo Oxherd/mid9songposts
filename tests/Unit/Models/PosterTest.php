@@ -23,4 +23,15 @@ class PosterTest extends TestCase
             return $job->user === $poster->account;
         });
     }
+
+    /** @test */
+    public function it_has_avatar_attribute_based_on_its_account()
+    {
+        $poster = Poster::factory()->create(['account' => 'JohnDoe']);
+
+        $this->assertEquals(
+            "https://avatar2.bahamut.com.tw/avataruserpic/j/o/johndoe/johndoe_s.png",
+            $poster->avatar
+        );
+    }
 }

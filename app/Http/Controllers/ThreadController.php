@@ -26,4 +26,24 @@ class ThreadController extends Controller
             'threads' => $threads,
         ]);
     }
+
+    public function show(Thread $thread)
+    {
+        $thread->load([
+            'posts' => function ($query) {
+                $query->orderBy('created_at')
+                    ->with([
+                        'poster',
+                        'links',
+                        'comments' => function ($subQuery) {
+                            $subQuery->orderBy('created_at')->with('poster');
+                        }
+                    ]);
+            }
+        ]);
+
+        return view('threads.show', [
+            'thread' => $thread,
+        ]);
+    }
 }

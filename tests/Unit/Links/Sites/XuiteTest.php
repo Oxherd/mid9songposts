@@ -59,4 +59,13 @@ class XuiteTest extends TestCase
             Xuite::generalUrl('Rkh5cXdhLTMzMDk3NTY5LmZsdg==')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://vlog.xuite.net/embed/Rkh5cXdhLTMzMDk3NTY5LmZsdg==',
+            Xuite::embeddedUrl('Rkh5cXdhLTMzMDk3NTY5LmZsdg==')
+        );
+    }
 }

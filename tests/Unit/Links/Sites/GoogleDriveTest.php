@@ -49,4 +49,13 @@ class GoogleDriveTest extends TestCase
             GoogleDrive::generalUrl('1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://drive.google.com/file/d/1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW/preview',
+            GoogleDrive::embeddedUrl('1qjHMlN0coKQUv0TWPL3nyaiiQ2gzZLfW')
+        );
+    }
 }

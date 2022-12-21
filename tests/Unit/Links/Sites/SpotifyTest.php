@@ -57,4 +57,13 @@ class SpotifyTest extends TestCase
             Spotify::generalUrl('1LIbioTb3guzUzVtTEc8Fx')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://open.spotify.com/embed/track/1LIbioTb3guzUzVtTEc8Fx',
+            Spotify::embeddedUrl('1LIbioTb3guzUzVtTEc8Fx')
+        );
+    }
 }

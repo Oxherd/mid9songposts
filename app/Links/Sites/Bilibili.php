@@ -21,6 +21,11 @@ class Bilibili extends SiteContract
         return "https://www.bilibili.com/video/{$resource_id}";
     }
 
+    public static function embeddedUrl($resource_id)
+    {
+        return "https://player.bilibili.com/player.html?bvid={$resource_id}";
+    }
+
     /**
      * check given url is provide general video or not
      *

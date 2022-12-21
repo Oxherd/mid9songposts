@@ -30,4 +30,9 @@ abstract class SiteContract
      * using given resource id to generate a general url string
      */
     abstract public static function generalUrl($resource_id);
+
+    /**
+     * using given resource id to generate a embedded url string
+     */
+    abstract public static function embeddedUrl($resource_id);
 }

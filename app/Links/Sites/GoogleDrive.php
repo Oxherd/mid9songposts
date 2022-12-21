@@ -21,6 +21,11 @@ class GoogleDrive extends SiteContract
         return "https://drive.google.com/file/d/{$resource_id}/view";
     }
 
+    public static function embeddedUrl($resource_id)
+    {
+        return "https://drive.google.com/file/d/{$resource_id}/preview";
+    }
+
     /**
      * determine what segment of resource id should return
      *

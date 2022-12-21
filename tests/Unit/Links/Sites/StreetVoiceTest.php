@@ -39,4 +39,13 @@ class StreetVoiceTest extends TestCase
             StreetVoice::generalUrl('tryingtimes/songs/562857')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://streetvoice.com/music/embed/?id=562857',
+            StreetVoice::embeddedUrl('tryingtimes/songs/562857')
+        );
+    }
 }

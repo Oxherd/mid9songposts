@@ -53,6 +53,12 @@ class BahaRedirect extends SiteContract
      */
     public static function generalUrl($resource_id)
     {
+    }
 
+    /**
+     * won't use this method in embedded
+     */
+    public static function embeddedUrl($resource_id)
+    {
     }
 }

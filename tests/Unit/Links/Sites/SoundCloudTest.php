@@ -46,4 +46,13 @@ class SoundCloudTest extends TestCase
             SoundCloud::generalUrl('/bustre/bustre-calamity')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/271297238',
+            SoundCloud::embeddedUrl('/bustre/bustre-calamity?tracks=271297238')
+        );
+    }
 }

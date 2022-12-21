@@ -31,7 +31,7 @@ class Post extends Model
     }
 
     /**
-     * @return Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function poster()
     {
@@ -39,11 +39,27 @@ class Post extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Concerns\HasRelationships
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function links()
     {
         return $this->hasMany(Link::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function thread()
+    {
+        return $this->belongsTo(Thread::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 
     /**

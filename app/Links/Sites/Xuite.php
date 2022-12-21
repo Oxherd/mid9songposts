@@ -21,6 +21,11 @@ class Xuite extends SiteContract
         return "https://vlog.xuite.net/play/{$resource_id}";
     }
 
+    public static function embeddedUrl($resource_id)
+    {
+        return "https://vlog.xuite.net/embed/{$resource_id}";
+    }
+
     /**
      * determine how resource id segment return
      *

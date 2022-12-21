@@ -120,4 +120,18 @@ class ViewThreadsByMonthTest extends TestCase
 
         $this->assertCount(1, $response->viewData('threads'));
     }
+
+    /** @test */
+    public function it_provides_links_that_can_let_you_see_specific_thread()
+    {
+        Thread::factory()->create([
+            'date' => $date = today()->format('Y-m-d'),
+        ]);
+
+        $response = $this->get(route('threads.month'));
+
+        $response->assertSee(route('threads.show', [
+            'thread' => $date,
+        ]));
+    }
 }

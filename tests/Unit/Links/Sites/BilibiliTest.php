@@ -49,4 +49,13 @@ class BilibiliTest extends TestCase
             Bilibili::generalUrl('BV1Gy4y167jL')
         );
     }
+
+    /** @test */
+    public function it_can_generate_a_embedded_url_by_provide_a_resource_id()
+    {
+        $this->assertEquals(
+            'https://player.bilibili.com/player.html?bvid=BV1Gy4y167jL',
+            Bilibili::embeddedUrl('BV1Gy4y167jL')
+        );
+    }
 }
