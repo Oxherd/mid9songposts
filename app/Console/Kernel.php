@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
             (new ScrapePostsFromSearchTitle)->handle();
         })->dailyAt('23:00');
 
-        $schedule->command('queue:work', ['--stop-when-empty', '--rest=3'])->dailyAt('23:30');
+        $schedule->command('queue:work', ['--stop-when-empty', '--rest=3', '--timeout=120'])->dailyAt('23:30');
     }
 
     /**
