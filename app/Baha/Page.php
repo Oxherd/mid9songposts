@@ -3,17 +3,19 @@
 namespace App\Baha;
 
 use App\Links\UrlString;
-use Symfony\Component\Panther\Client;
+
+use GuzzleHttp\Client;
+use Symfony\Component\DomCrawler\Crawler;
 
 abstract class Page
 {
     /**
-     * @property \Symfony\Component\Panther\Client $cachedClient need keep client alive for crawler interaction
+     * @property \GuzzleHttp\Client|\Symfony\Component\Panther\Client $cachedClient need keep client alive for crawler interaction
      */
     protected $cachedClient;
 
     /**
-     * @property \Symfony\Component\Panther\DomCrawler\Crawler use for html interaction
+     * @property \Symfony\Component\DomCrawler\Crawler|\Symfony\Component\Panther\DomCrawler\Crawler use for html interaction
      */
     public $html;
 
@@ -31,10 +33,17 @@ abstract class Page
 
         $this->ensureIsExpectedUrl();
 
-        /** @var \Symfony\Component\Panther\Client */
+        /** @var \GuzzleHttp\Client|\Symfony\Component\Panther\Client */
         $this->cachedClient = app(Client::class);
 
-        $this->html = $this->cachedClient->request('GET', $this->url);
+        $response = $this->cachedClient->request('GET', (string) $this->url);
+
+        if ($this->cachedClient instanceof Client) {
+            $this->html = new Crawler((string) $response->getBody());
+        } else {
+            /** @var \Symfony\Component\Panther\DomCrawler\Crawler */
+            $this->html = $response;
+        }
     }
 
     /**

@@ -2,11 +2,12 @@
 
 namespace App\Providers;
 
+use GuzzleHttp\Client;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
-use Symfony\Component\Panther\Client;
+use Symfony\Component\Panther\Client as PantherClient;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,7 +19,11 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(Client::class, function ($app) {
-            return Client::createFirefoxClient();
+            if (config('app.scrape_by') == 'panther') {
+                return PantherClient::createFirefoxClient();
+            }
+
+            return new Client();
         });
 
         $this->app->bind(HTMLPurifier::class, function ($app) {

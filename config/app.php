@@ -229,4 +229,5 @@ return [
 
     ],
 
+    'scrape_by' => env('SCRAPE_BY', 'guzzle'),
 ];

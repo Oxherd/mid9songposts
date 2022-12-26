@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
-use Symfony\Component\Panther\Client;
-use Symfony\Component\Panther\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Panther\Client as PantherClient;
+use Symfony\Component\Panther\DomCrawler\Crawler as PantherCrawler;
 
 class CheckBahaPageLayout extends Command
 {
@@ -14,7 +16,13 @@ class CheckBahaPageLayout extends Command
 
     protected const FAILED = 'Failed';
 
+    protected const GUZZLE = 'guzzle';
+
+    protected const PANTHER = 'panther';
+
     protected $threadPageUrl = '';
+
+    protected Client|PantherClient $cachedClient;
 
     /**
      * The name and signature of the console command.
@@ -31,20 +39,20 @@ class CheckBahaPageLayout extends Command
     protected $description = "Check Baha page's layout(html/css) changed or not";
 
     protected $reports = [
-        'Search Title Page Items' => self::PASSED,
-        'Search Title Page Titles' => self::PASSED,
-        'Search Title Page Users' => self::PASSED,
-        'Thread Page Url' => self::PASSED,
-        'Thread Page Title' => self::PASSED,
-        'Thread Page Posts' => self::PASSED,
-        'Thread Page Created At' => self::PASSED,
-        'Post Section Index' => self::PASSED,
-        'Post Section Content' => self::PASSED,
-        'Post Section Created At' => self::PASSED,
-        'Post Section User Id' => self::PASSED,
-        'Post Section User Name' => self::PASSED,
-        'Search User Page Items' => self::PASSED,
-        'Paginator' => self::PASSED,
+        'Search Title Page Items' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Search Title Page Titles' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Search Title Page Users' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Thread Page Url' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Thread Page Title' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Thread Page Posts' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Thread Page Created At' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Post Section Index' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Post Section Content' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Post Section Created At' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Post Section User Id' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Post Section User Name' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Search User Page Items' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Paginator' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
     ];
 
     /**
@@ -64,39 +72,46 @@ class CheckBahaPageLayout extends Command
      */
     public function handle()
     {
-        /** @var \Symfony\Component\Panther\Client */
-        $client = app(Client::class);
-
-        $this->info('Checking search title page...');
-
-        $this->checkSearchTitlePage($client);
-
-        $this->info('Search title page checked.');
-
-        $this->info('Checking thread page with: ' . $this->threadPageUrl);
-
-        $firstPost = $this->checkThreadPage($client);
-
-        $this->info('Thread page checked.');
-
-        $this->info('Checking Post Section...');
-
-        $this->checkPostSection($firstPost);
-
-        $this->info('Post section checked.');
-
-        $this->info('Checking search user page...');
-
-        $this->checkSearchUserPage($client);
-
-        $this->info('Search user page checked.');
+        $this->checkBahaPageLayoutBy(self::GUZZLE);
+        $this->checkBahaPageLayoutBy(self::PANTHER);
 
         $this->outputResults();
     }
 
-    protected function checkSearchTitlePage(Client $client)
+    protected function checkBahaPageLayoutBy($by)
     {
-        $page = $client->request('GET', 'https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=半夜歌串一人一首');
+        config(['app.scrape_by' => $by]);
+
+        $this->cachedClient = app(Client::class);
+
+        $this->info("Checking search title page by {$by}...");
+
+        $this->checkSearchTitlePage();
+
+        $this->info("Search title page by {$by} checked.");
+
+        $this->info("Checking thread page by {$by} with: {$this->threadPageUrl}");
+
+        $firstPost = $this->checkThreadPage();
+
+        $this->info("Thread page by {$by} checked.");
+
+        $this->info("Checking Post Section by {$by}...");
+
+        $this->checkPostSection($firstPost);
+
+        $this->info("Post section by {$by} checked.");
+
+        $this->info("Checking search user page by {$by}...");
+
+        $this->checkSearchUserPage();
+
+        $this->info("Search user page by {$by} checked.");
+    }
+
+    protected function checkSearchTitlePage()
+    {
+        $page = $this->getPage('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=半夜歌串一人一首');
 
         $items = $page->filter('.b-list-item');
 
@@ -117,60 +132,70 @@ class CheckBahaPageLayout extends Command
         $this->checkPaginator($page);
     }
 
-    protected function checkThreadPage(Client $client)
+    protected function checkThreadPage()
     {
-        $page = $client->request('GET', $this->threadPageUrl);
+        $page = $this->getPage($this->threadPageUrl);
 
         $content = $page->filter('meta[property="al:ios:url"]')->attr('content');
 
-        if (!$content) $this->reports['Thread Page Url'] = self::FAILED;
+        if (!$content) $this->reports['Thread Page Url'][config('app.scrape_by')] = self::FAILED;
 
-        $title = $client->getTitle();
+        if (config('app.scrape_by') === self::GUZZLE) {
+            $title = $page->filter('title')->text();
+        } else {
+            $title = $this->cachedClient->getTitle();
+        }
 
-        if (!$title) $this->reports['Thread Page Title'] = self::FAILED;
+        $this->info("Thread Page Title is {$title}");
+
+        if (!$title) $this->reports['Thread Page Title'][config('app.scrape_by')] = self::FAILED;
 
         $posts = $page->filter('.c-section[id^="post_"]');
 
-        if (!$posts->count()) $this->reports['Thread Page Posts'] = self::FAILED;
+        if (!$posts->count()) $this->reports['Thread Page Posts'][config('app.scrape_by')] = self::FAILED;
 
         $createdAt = $page->filter('.c-post__header__info a[data-mtime]')->first()->attr('data-mtime');
 
-        if (!$createdAt) $this->reports['Thread Page Created At'] = self::FAILED;
+        if (!$createdAt) $this->reports['Thread Page Created At'][config('app.scrape_by')] = self::FAILED;
 
         $this->checkPaginator($page);
 
         return $posts->first();
     }
 
-    protected function checkPostSection(Crawler $post)
+    protected function checkPostSection(Crawler|PantherCrawler $post)
     {
         $id = $post->filter('.c-article')->attr('id');
 
-        if (!$id) $this->reports['Post Section Index'] = self::FAILED;
+        if (!$id) $this->reports['Post Section Index'][config('app.scrape_by')] = self::FAILED;
 
-        /** @var \Facebook\WebDriver\Remote\RemoteWebElement */
-        $webElement = $post->filter('.c-article__content')->getElement(0);
+        if (config('app.scrape_by') === self::GUZZLE) {
+            $content = $post->filter('.c-article__content')->html();
+        } else {
+            /** @var \Facebook\WebDriver\Remote\RemoteWebElement */
+            $webElement = $post->filter('.c-article__content')->getElement(0);
 
-        $content = $webElement->getDomProperty('innerHTML');
+            $content = $webElement->getDomProperty('innerHTML');
+        }
 
-        if (!$content) $this->reports['Post Section Content'] = self::FAILED;
+        if (!$content) $this->reports['Post Section Content'][config('app.scrape_by')] = self::FAILED;
 
         $createdAt = $post->filter('a[data-mtime]')->attr('data-mtime');
 
-        if (!$createdAt) $this->reports['Post Section Created At'] = self::FAILED;
+        if (!$createdAt) $this->reports['Post Section Created At'][config('app.scrape_by')] = self::FAILED;
 
         $userid = $post->filter('.userid')->text();
 
-        if (!$userid) $this->reports['Post Section User Id'] = self::FAILED;
+        if (!$userid) $this->reports['Post Section User Id'][config('app.scrape_by')] = self::FAILED;
 
         $username = $post->filter('.username')->text();
 
-        if (!$username) $this->reports['Post Section User Name'] = self::FAILED;
+        if (!$username) $this->reports['Post Section User Name'][config('app.scrape_by')] = self::FAILED;
     }
 
-    protected function checkSearchUserPage(Client $client)
+    protected function checkSearchUserPage()
     {
-        $page = $client->request('GET', 'https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=a7752876');
+        $page = $this->getPage('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=a7752876');
 
         $items = $page->filter('.b-list__main > a');
 
@@ -181,22 +206,37 @@ class CheckBahaPageLayout extends Command
 
     protected function outputResults()
     {
-        $this->table(['Subject', 'Report'], collect($this->reports)->map(function ($value, $key) {
-            $color = $value == self::PASSED ? 'green' : ($value == self::WARN ? 'yellow' : 'red');
+        $this->table(['Subject', 'Guzzle', 'Panther'], collect($this->reports)->map(function ($results, $key) {
+            [self::GUZZLE => $guzzleResult, self::PANTHER => $pantherResult] = $results;
+
+            $guzzleColor = $guzzleResult == self::PASSED ? 'green' : ($guzzleResult == self::WARN ? 'yellow' : 'red');
+            $pantherColor = $pantherResult == self::PASSED ? 'green' : ($pantherResult == self::WARN ? 'yellow' : 'red');
 
             return [
                 $key,
-                "<fg={$color}>{$value}</>",
+                "<fg={$guzzleColor}>{$guzzleResult}</>",
+                "<fg={$pantherColor}>{$pantherResult}</>",
             ];
         }));
     }
 
-    protected function setCountableSearchReport($key, $count)
+    protected function getPage(string $url): Crawler|PantherCrawler
+    {
+        $response = $this->cachedClient->request('GET', $url);
+
+        if (config('app.scrape_by') == self::GUZZLE) {
+            return new Crawler((string) $response->getBody());
+        } else {
+            return $response;
+        }
+    }
+
+    protected function setCountableSearchReport(string $key, int $count)
     {
         if ($count === 0) {
-            $this->reports[$key] = self::FAILED;
+            $this->reports[$key][config('app.scrape_by')] = self::FAILED;
         } else if ($count < 30) {
-            $this->reports[$key] = self::WARN;
+            $this->reports[$key][config('app.scrape_by')] = self::WARN;
         }
     }
 
@@ -204,6 +244,8 @@ class CheckBahaPageLayout extends Command
     {
         $pagenow = $page->filter('.pagenow');
 
-        $this->reports['Paginator'] = $pagenow->count() ? $this->reports['Paginator'] : self::FAILED;
+        $this->reports['Paginator'][config('app.scrape_by')] = $pagenow->count()
+            ? $this->reports['Paginator'][config('app.scrape_by')]
+            : self::FAILED;
     }
 }

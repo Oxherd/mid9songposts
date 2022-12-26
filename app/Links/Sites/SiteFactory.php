@@ -99,7 +99,7 @@ class SiteFactory
     {
         $site = $this->belongsSite($this->url->domain());
 
-        $siteClass = static::$siteClasses[$site] ?? null;
+        $siteClass = static::$siteClasses[$site] ?? '';
 
         if (!class_exists($siteClass)) {
             return new NotRegisted($this->url);
@@ -117,7 +117,7 @@ class SiteFactory
      */
     public static function make($site)
     {
-        $siteClass = static::$siteClasses[$site] ?? null;
+        $siteClass = static::$siteClasses[$site] ?? '';
 
         if (!class_exists($siteClass)) {
             return NotRegisted::class;

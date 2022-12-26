@@ -7,6 +7,7 @@ use App\Exceptions\NotExpectedPageException;
 use App\Links\UrlString;
 use App\Models\Thread;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -87,7 +88,13 @@ class ThreadPage extends Page
      */
     public function title()
     {
-        return Str::between($this->cachedClient->getTitle(), ':', ' @');
+        if ($this->cachedClient instanceof Client) {
+            $title = $this->html->filter('title')->text();
+        } else {
+            $title = $this->cachedClient->getTitle();
+        }
+
+        return Str::between($title, ':', ' @');
     }
 
     /**

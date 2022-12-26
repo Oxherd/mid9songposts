@@ -2,13 +2,13 @@
 
 namespace Tests\Setup\Pages;
 
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Mockery;
 use Mockery\MockInterface;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\Panther\Client;
 
 trait WorksWithBahaPages
 {

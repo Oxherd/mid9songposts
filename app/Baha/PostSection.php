@@ -73,13 +73,19 @@ class PostSection
      */
     public function content()
     {
-        /** @var \Symfony\Component\Panther\DomCrawler\Crawler */
+        /** @var \Symfony\Component\DomCrawler\Crawler|\Symfony\Component\Panther\DomCrawler\Crawler */
         $crawler = $this->html->filter('.c-article__content');
 
-        /** @var \Facebook\WebDriver\Remote\RemoteWebElement */
-        $webElement = $crawler->getElement(0);
+        if ($crawler instanceof Crawler) {
+            $content = $crawler->html();
+        } else {
+            /** @var \Facebook\WebDriver\Remote\RemoteWebElement */
+            $webElement = $crawler->getElement(0);
 
-        return urldecode($webElement->getDomProperty('innerHTML'));
+            $content = $webElement->getDomProperty('innerHTML');
+        }
+
+        return urldecode($content);
     }
 
     /**

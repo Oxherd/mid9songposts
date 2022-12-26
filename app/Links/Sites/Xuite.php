@@ -29,7 +29,7 @@ class Xuite extends SiteContract
     /**
      * determine how resource id segment return
      *
-     * @return string|null
+     * @return string
      */
     protected function walkCondition()
     {
@@ -40,7 +40,7 @@ class Xuite extends SiteContract
         if ($this->isMobileUrl()) {
             $paths = explode('/', $this->url->path());
 
-            return $paths[3] ?? null;
+            return $paths[3] ?? '';
         }
 
         return Str::afterLast($this->url->path(), '/play');
