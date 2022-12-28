@@ -24,7 +24,7 @@ class FetchCommentsFromExistedPostsTest extends TestCase
     /** @test */
     public function it_will_query_all_posts_and_immediately_dispatch_FetchPostComment()
     {
-        $this->fakeFetchSingleCommentResponse();
+        $this->mockSingleCommentResponse();
 
         Post::factory()->count(3)->create();
 

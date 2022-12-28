@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Baha\Scraper;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Panther\Client as PantherClient;
 use Symfony\Component\Panther\DomCrawler\Crawler as PantherCrawler;
@@ -22,7 +24,11 @@ class CheckBahaPageLayout extends Command
 
     protected $threadPageUrl = '';
 
+    protected Scraper $scraper;
+
     protected Client|PantherClient $cachedClient;
+
+    protected $postNo = '';
 
     /**
      * The name and signature of the console command.
@@ -53,6 +59,7 @@ class CheckBahaPageLayout extends Command
         'Post Section User Name' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
         'Search User Page Items' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
         'Paginator' => [self::GUZZLE => self::PASSED, self::PANTHER => self::PASSED],
+        'Comment Request' => self::PASSED,
     ];
 
     /**
@@ -82,7 +89,9 @@ class CheckBahaPageLayout extends Command
     {
         config(['app.scrape_by' => $by]);
 
-        $this->cachedClient = app(Client::class);
+        $this->scraper = new Scraper();
+
+        $this->cachedClient = $this->scraper->client();
 
         $this->info("Checking search title page by {$by}...");
 
@@ -107,11 +116,17 @@ class CheckBahaPageLayout extends Command
         $this->checkSearchUserPage();
 
         $this->info("Search user page by {$by} checked.");
+
+        if ($this->cachedClient instanceof Client) {
+            $this->checkCommentRequest();
+
+            $this->info('Comment request checked.');
+        }
     }
 
     protected function checkSearchTitlePage()
     {
-        $page = $this->getPage('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=半夜歌串一人一首');
+        $page = $this->scraper->getPage('https://forum.gamer.com.tw/B.php?bsn=60076&qt=1&q=半夜歌串一人一首');
 
         $items = $page->filter('.b-list-item');
 
@@ -134,7 +149,7 @@ class CheckBahaPageLayout extends Command
 
     protected function checkThreadPage()
     {
-        $page = $this->getPage($this->threadPageUrl);
+        $page = $this->scraper->getPage($this->threadPageUrl);
 
         $content = $page->filter('meta[property="al:ios:url"]')->attr('content');
 
@@ -167,9 +182,11 @@ class CheckBahaPageLayout extends Command
     {
         $id = $post->filter('.c-article')->attr('id');
 
-        if (!$id) $this->reports['Post Section Index'][config('app.scrape_by')] = self::FAILED;
+        $this->postNo = Str::after($id, 'post_');
 
-        if (config('app.scrape_by') === self::GUZZLE) {
+        if (!$this->postNo) $this->reports['Post Section Index'][config('app.scrape_by')] = self::FAILED;
+
+        if ($this->cachedClient instanceof Client) {
             $content = $post->filter('.c-article__content')->html();
         } else {
             /** @var \Facebook\WebDriver\Remote\RemoteWebElement */
@@ -195,7 +212,7 @@ class CheckBahaPageLayout extends Command
 
     protected function checkSearchUserPage()
     {
-        $page = $this->getPage('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=a7752876');
+        $page = $this->scraper->getPage('https://forum.gamer.com.tw/Bo.php?bsn=60076&qt=6&q=a7752876');
 
         $items = $page->filter('.b-list__main > a');
 
@@ -204,31 +221,38 @@ class CheckBahaPageLayout extends Command
         $this->checkPaginator($page);
     }
 
-    protected function outputResults()
+    protected function checkCommentRequest()
     {
-        $this->table(['Subject', 'Guzzle', 'Panther'], collect($this->reports)->map(function ($results, $key) {
-            [self::GUZZLE => $guzzleResult, self::PANTHER => $pantherResult] = $results;
+        $url = "https://forum.gamer.com.tw/ajax/moreCommend.php?bsn=60076&snB=";
 
-            $guzzleColor = $guzzleResult == self::PASSED ? 'green' : ($guzzleResult == self::WARN ? 'yellow' : 'red');
-            $pantherColor = $pantherResult == self::PASSED ? 'green' : ($pantherResult == self::WARN ? 'yellow' : 'red');
+        $response = $this->scraper->requestByGuzzle("{$url}{$this->postNo}");
 
-            return [
-                $key,
-                "<fg={$guzzleColor}>{$guzzleResult}</>",
-                "<fg={$pantherColor}>{$pantherResult}</>",
-            ];
-        }));
+        $data = json_decode($response, true);
+
+        if (!isset($data['next_snC'])) $this->reports['Comment Request'] = self::FAILED;
     }
 
-    protected function getPage(string $url): Crawler|PantherCrawler
+    protected function outputResults()
     {
-        $response = $this->cachedClient->request('GET', $url);
+        $rows = collect($this->reports)
+            ->except('Comment Request')
+            ->map(function ($results, $key) {
+                [self::GUZZLE => $guzzleResult, self::PANTHER => $pantherResult] = $results;
 
-        if (config('app.scrape_by') == self::GUZZLE) {
-            return new Crawler((string) $response->getBody());
-        } else {
-            return $response;
-        }
+                $guzzleColor = $guzzleResult == self::PASSED ? 'green' : ($guzzleResult == self::WARN ? 'yellow' : 'red');
+                $pantherColor = $pantherResult == self::PASSED ? 'green' : ($pantherResult == self::WARN ? 'yellow' : 'red');
+
+                return [
+                    $key,
+                    "<fg={$guzzleColor}>{$guzzleResult}</>",
+                    "<fg={$pantherColor}>{$pantherResult}</>",
+                ];
+            });
+
+        $commentColor = $this->reports['Comment Request'] == self::PASSED ? 'green' : 'red';
+        $rows[] = ['Comment Request', "<fg={$commentColor}>{$this->reports['Comment Request']}</>"];
+
+        $this->table(['Subject', 'Guzzle', 'Panther'], $rows);
     }
 
     protected function setCountableSearchReport(string $key, int $count)

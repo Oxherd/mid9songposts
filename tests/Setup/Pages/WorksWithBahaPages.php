@@ -3,12 +3,10 @@
 namespace Tests\Setup\Pages;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
-use Mockery;
-use Mockery\MockInterface;
-use Symfony\Component\BrowserKit\AbstractBrowser;
-use Symfony\Component\DomCrawler\Crawler;
 
 trait WorksWithBahaPages
 {
@@ -25,183 +23,156 @@ trait WorksWithBahaPages
         return File::get($this->pagesFilePath . '/post_section.html');
     }
 
-    protected function fakeFetchSingleCommentResponse()
+    protected function mockSingleCommentResponse()
     {
-        Http::fake(function () {
-            return Http::response(File::get($this->jsonTextPath . '/single_comment.json'), 200);
-        });
+        $singleCommentJson = File::get($this->jsonTextPath . '/single_comment.json');
+
+        $this->mockClient([new Response(200, [], $singleCommentJson)]);
     }
 
-    protected function fakeFetchMultipleCommentsResponse()
+    protected function mockMultipleCommentsResponse()
     {
-        Http::fake(function () {
-            return Http::response(File::get($this->jsonTextPath . '/multiple_comments.json'), 200);
-        });
+        $multipleCommentsJson = File::get($this->jsonTextPath . '/multiple_comments.json');
+
+        $this->mockClient([new Response(200, [], $multipleCommentsJson)]);
     }
 
     protected function mockClientWithSinglePost()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $singlePostHTML = File::get($this->pagesFilePath . '/single_post.html');
+        $singlePostHTML = File::get($this->pagesFilePath . '/single_post.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($singlePostHTML));
-            $mock->shouldReceive('getTitle')->andReturn('RE:【情報】12/8 半夜歌串一人一首 @場外休憩區 哈啦板 - 巴哈姆特');
-        }));
+        $this->mockClient([new Response(200, [], $singlePostHTML)]);
     }
 
     protected function mockClientWithThreadFirstPage()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $threadHTML = File::get($this->pagesFilePath . '/thread_p1.html');
+        $threadHTML = File::get($this->pagesFilePath . '/thread_p1.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($threadHTML));
-            $mock->shouldReceive('getTitle')->andReturn('【情報】11/7 半夜歌串一人一首 @場外休憩區 哈啦板 - 巴哈姆特');
-        }));
+        $this->mockClient([new Response(200, [], $threadHTML)]);
     }
 
     protected function mockClientWithThreadUnavailable()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $unavailableHTML = File::get($this->pagesFilePath . '/thread_unavailable.html');
+        $unavailableHTML = File::get($this->pagesFilePath . '/thread_unavailable.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($unavailableHTML));
-        }));
+        $this->mockClient([new Response(200, [], $unavailableHTML)]);
     }
 
     protected function mockClientWithThreadNoDateInTitle()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $unavailableHTML = File::get($this->pagesFilePath . '/no_date_title.html');
+        $unavailableHTML = File::get($this->pagesFilePath . '/no_date_title.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($unavailableHTML));
-            $mock->shouldReceive('getTitle')->andReturn('【情報】. @場外休憩區 哈啦板 - 巴哈姆特');
-        }));
+        $this->mockClient([new Response(200, [], $unavailableHTML)]);
     }
 
     protected function mockClientWithSinglePostFromDifferentYear()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $unavailableHTML = File::get($this->pagesFilePath . '/different_year_post.html');
+        $unavailableHTML = File::get($this->pagesFilePath . '/different_year_post.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($unavailableHTML));
-            $mock->shouldReceive('getTitle')->andReturn('RE:【情報】12/31 半夜歌串一人一首 @場外休憩區 哈啦板 - 巴哈姆特');
-        }));
+        $this->mockClient([new Response(200, [], $unavailableHTML)]);
     }
 
     protected function mockClientWithThreadAll3Pages()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $threadP1 = File::get($this->pagesFilePath . '/thread_p1.html');
-            $threadP2 = File::get($this->pagesFilePath . '/thread_p2.html');
-            $threadP3 = File::get($this->pagesFilePath . '/thread_p3.html');
+        $threadP1 = File::get($this->pagesFilePath . '/thread_p1.html');
+        $threadP2 = File::get($this->pagesFilePath . '/thread_p2.html');
+        $threadP3 = File::get($this->pagesFilePath . '/thread_p3.html');
 
-            $mock->shouldReceive('request')->andReturns(
-                new Crawler($threadP1),
-                new Crawler($threadP2),
-                new Crawler($threadP3)
-            );
-        }));
+        $this->mockClient([
+            new Response(200, [], $threadP1),
+            new Response(200, [], $threadP2),
+            new Response(200, [], $threadP3),
+        ]);
     }
 
     protected function mockClientWithSearchUserPageClassTagChanged()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $html = File::get($this->pagesFilePath . '/search_user_p1.html');
+        $html = File::get($this->pagesFilePath . '/search_user_p1.html');
+        $classTagChanged = str_replace('b-list__main', 'changed_class', $html);
 
-            $classTagChanged = str_replace('b-list__main', 'changed_class', $html);
-
-            $mock->shouldReceive('request')->andReturn(new Crawler($classTagChanged));
-        }));
+        $this->mockClient([new Response(200, [], $classTagChanged)]);
     }
 
     protected function mockClientWithSearchUserNoResult()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $noResult = File::get($this->pagesFilePath . '/search_user_no_result.html');
+        $noResult = File::get($this->pagesFilePath . '/search_user_no_result.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($noResult));
-        }));
+        $this->mockClient([new Response(200, [], $noResult)]);
     }
 
     protected function mockClientWithSearchUserFirstPage()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $searchUserP1 = File::get($this->pagesFilePath . '/search_user_p1.html');
+        $searchUserP1 = File::get($this->pagesFilePath . '/search_user_p1.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($searchUserP1));
-        }));
+        $this->mockClient([new Response(200, [], $searchUserP1)]);
     }
 
     protected function mockClientWithSearchUserAll2Pages()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $searchUserP1 = File::get($this->pagesFilePath . '/search_user_p1.html');
-            $searchUserP2 = File::get($this->pagesFilePath . '/search_user_p2.html');
+        $searchUserP1 = File::get($this->pagesFilePath . '/search_user_p1.html');
+        $searchUserP2 = File::get($this->pagesFilePath . '/search_user_p2.html');
 
-            $mock->shouldReceive('request')->andReturns(
-                new Crawler($searchUserP1),
-                new Crawler($searchUserP2)
-            );
-        }));
+        $this->mockClient([
+            new Response(200, [], $searchUserP1),
+            new Response(200, [], $searchUserP2),
+        ]);
     }
 
     protected function mockClientWithSearchUserLastPage()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $lastPage = File::get($this->pagesFilePath . '/search_user_p2.html');
+        $lastPage = File::get($this->pagesFilePath . '/search_user_p2.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($lastPage));
-        }));
+        $this->mockClient([new Response(200, [], $lastPage)]);
     }
 
     protected function mockClientWithSearchTitleFirstPage()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $searchTitleP1 = File::get($this->pagesFilePath . '/search_title_p1.html');
+        $searchTitleP1 = File::get($this->pagesFilePath . '/search_title_p1.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($searchTitleP1));
-        }));
+        $this->mockClient([new Response(200, [], $searchTitleP1)]);
     }
 
     protected function mockClientWithSearchTitleClassTagChanged()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $html = File::get($this->pagesFilePath . '/search_title_p1.html');
+        $html = File::get($this->pagesFilePath . '/search_title_p1.html');
+        $classTagChanged = str_replace('b-list-item', 'changed_class', $html);
 
-            $classTagChanged = str_replace('b-list-item', 'changed_class', $html);
-
-            $mock->shouldReceive('request')->andReturn(new Crawler($classTagChanged));
-        }));
+        $this->mockClient([new Response(200, [], $classTagChanged)]);
     }
 
     protected function mockClientWithSearchTitleNoResult()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $noResult = File::get($this->pagesFilePath . '/search_title_no_result.html');
+        $noResult = File::get($this->pagesFilePath . '/search_title_no_result.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($noResult));
-        }));
+        $this->mockClient([new Response(200, [], $noResult)]);
     }
 
     protected function mockClientWithSearchTitleAll2Pages()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $searchTitleP1 = File::get($this->pagesFilePath . '/search_title_p1.html');
-            $searchTitleP2 = File::get($this->pagesFilePath . '/search_title_p2.html');
+        $searchTitleP1 = File::get($this->pagesFilePath . '/search_title_p1.html');
+        $searchTitleP2 = File::get($this->pagesFilePath . '/search_title_p2.html');
 
-            $mock->shouldReceive('request')->andReturns(
-                new Crawler($searchTitleP1),
-                new Crawler($searchTitleP2)
-            );
-        }));
+        $this->mockClient([
+            new Response(200, [], $searchTitleP1),
+            new Response(200, [], $searchTitleP2),
+        ]);
     }
 
     protected function mockClientWithSearchTitleLastPage()
     {
-        app()->instance(Client::class, Mockery::mock(AbstractBrowser::class, function (MockInterface $mock) {
-            $lastPage = File::get($this->pagesFilePath . '/search_title_p2.html');
+        $lastPage = File::get($this->pagesFilePath . '/search_title_p2.html');
 
-            $mock->shouldReceive('request')->andReturn(new Crawler($lastPage));
-        }));
+        $this->mockClient([new Response(200, [], $lastPage)]);
+    }
+
+    protected function mockClient(array $responses)
+    {
+        $mock = new MockHandler($responses);
+
+        $handlerStack = HandlerStack::create($mock);
+
+        $client = new Client(['handler' => $handlerStack]);
+
+        app()->instance(Client::class, $client);
     }
 }

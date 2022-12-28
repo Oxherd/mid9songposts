@@ -19,11 +19,11 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(Client::class, function ($app) {
-            if (config('app.scrape_by') == 'panther') {
+            if (config('app.scrape_by') == 'guzzle') {
+                return new Client();
+            } elseif (config('app.scrape_by') == 'panther') {
                 return PantherClient::createFirefoxClient();
             }
-
-            return new Client();
         });
 
         $this->app->bind(HTMLPurifier::class, function ($app) {

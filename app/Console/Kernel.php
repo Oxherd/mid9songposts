@@ -25,11 +25,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-            (new ScrapePostsFromSearchTitle)->handle();
-        })->dailyAt('23:00');
+        $schedule->call(fn () => (new ScrapePostsFromSearchTitle)->handle())
+            ->dailyAt('23:00')
+            ->when(fn () => (bool) cache('BAHARUNE'));
 
-        $schedule->command('queue:work', ['--stop-when-empty', '--rest=3', '--timeout=120'])->dailyAt('23:30');
+        $schedule->command('queue:work', ['--stop-when-empty', '--rest=3', '--timeout=120'])
+            ->dailyAt('23:30')
+            ->when(fn () => (bool) cache('BAHARUNE'));
     }
 
     /**

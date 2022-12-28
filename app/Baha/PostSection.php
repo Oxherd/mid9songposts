@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Panther\DomCrawler\Crawler as PantherCrawler;
 
 class PostSection
 {
@@ -78,7 +79,7 @@ class PostSection
 
         if ($crawler instanceof Crawler) {
             $content = $crawler->html();
-        } else {
+        } elseif ($crawler instanceof PantherCrawler) {
             /** @var \Facebook\WebDriver\Remote\RemoteWebElement */
             $webElement = $crawler->getElement(0);
 

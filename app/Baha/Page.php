@@ -4,9 +4,6 @@ namespace App\Baha;
 
 use App\Links\UrlString;
 
-use GuzzleHttp\Client;
-use Symfony\Component\DomCrawler\Crawler;
-
 abstract class Page
 {
     /**
@@ -33,17 +30,12 @@ abstract class Page
 
         $this->ensureIsExpectedUrl();
 
+        $scraper = new Scraper();
+
         /** @var \GuzzleHttp\Client|\Symfony\Component\Panther\Client */
-        $this->cachedClient = app(Client::class);
+        $this->cachedClient = $scraper->client();
 
-        $response = $this->cachedClient->request('GET', (string) $this->url);
-
-        if ($this->cachedClient instanceof Client) {
-            $this->html = new Crawler((string) $response->getBody());
-        } else {
-            /** @var \Symfony\Component\Panther\DomCrawler\Crawler */
-            $this->html = $response;
-        }
+        $this->html = $scraper->getPage((string) $this->url);
     }
 
     /**
