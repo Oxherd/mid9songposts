@@ -19,7 +19,7 @@ class ScrapeLinkTitleTest extends TestCase
     {
         $this->fakeNeverGonnaGiveYouUp();
 
-        $link = Link::factory()->create();
+        $link = Link::factory()->create(['title' => null]);
 
         $this->assertNull($link->title);
 

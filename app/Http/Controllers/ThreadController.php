@@ -11,7 +11,7 @@ class ThreadController extends Controller
     public function index($month = null)
     {
         try {
-            $ofMonth = Carbon::createFromFormat('Y-m', $month)->toImmutable();
+            $ofMonth = (new Carbon($month))->toImmutable();
         } catch (Exception $e) {
             $ofMonth = today()->toImmutable();
         }

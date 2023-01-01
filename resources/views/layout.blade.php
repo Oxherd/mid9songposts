@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" x-data="{ darkMode: $persist(false) }" x-init="$watch('darkMode', () => $el.classList.toggle('dark'))">
+<html class="scroll-smooth" lang="zh-Hant" x-data="{
+    darkMode: $persist(false),
+    showAllVideo: $persist(false)
+}" x-init="$watch('darkMode', () => $el.classList.toggle('dark'))">
 
 <head>
     <meta charset="UTF-8">
@@ -34,12 +37,14 @@
 </head>
 
 <body class="min-h-screen bg-neutral-100 dark:bg-gray-900" x-data x-ref="body">
-    <header class="sticky top-0 bg-cyan-600 text-white">
-        <div class="container relative mx-auto py-3">
-            <a class="pl-2 md:pl-0" href="/"><b>半夜歌串一人一首</b></a>
+    <header class="sticky top-0 z-50 w-full bg-cyan-600 text-white">
+        <div class="container mx-auto flex justify-between py-2 px-2 md:py-3">
+            <div>
+                <a class="text-base font-bold md:text-lg" href="/">半夜歌串一人一首</a>
+                <a class="text-sm md:text-base" href="{{ route('links.index') }}">歌曲列表</a>
+            </div>
 
-            <button class="absolute top-3 right-3" x-text="darkMode ? '🌒' : '☀️'"
-                @click="darkMode = !darkMode"></button>
+            <button x-text="darkMode ? '🌒' : '☀️'" @click="darkMode = !darkMode"></button>
         </div>
     </header>
 
@@ -47,7 +52,7 @@
         @yield('content')
     </div>
 
-    <div class="bg-cyan-600 p-1 text-center text-white">
+    <div class="bg-cyan-600 p-1 text-center text-xs text-white md:text-sm">
         <small>The end of the page.</small>
     </div>
 </body>

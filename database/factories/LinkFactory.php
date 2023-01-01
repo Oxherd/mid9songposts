@@ -28,6 +28,7 @@ class LinkFactory extends Factory
             'poster_id' => Poster::factory(),
             'site' => 'youtube',
             'resource_id' => 'dQw4w9WgXcQ',
+            'title' => 'Rick Astley - Never Gonna Give You Up (Official Music Video)',
             'original' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         ];
     }

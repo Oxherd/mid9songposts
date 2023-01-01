@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LinkController;
 use App\Http\Controllers\ThreadController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,5 +16,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [ThreadController::class, 'index']);
-Route::get('/month/{month?}', [ThreadController::class, 'index'])->name('threads.month');
+Route::get('/month/{month?}', [ThreadController::class, 'index'])
+    ->name('threads.month')
+    ->where('month', '20[0-9]{2}-[01][0-9]');
 Route::get('/threads/{thread:date}', [ThreadController::class, 'show'])->name('threads.show');
+Route::get('/links', [LinkController::class, 'index'])->name('links.index');

@@ -47,6 +47,16 @@ class Link extends Model
         return $this->belongsTo(Post::class);
     }
 
+    public function poster()
+    {
+        return $this->belongsTo(Poster::class);
+    }
+
+    public function thread()
+    {
+        return $this->hasOneThrough(Thread::class, Post::class, 'id', 'id', 'post_id', 'thread_id');
+    }
+
     /**
      * get a general version of Link's url
      *

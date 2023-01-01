@@ -10,11 +10,17 @@
 
 @section('content')
     <div class="mb-3 flex justify-between text-xl font-bold text-gray-600 dark:text-gray-300 md:mb-6 md:text-3xl">
-        <a class="p-2" href="{{ route('threads.month', ['month' => $ofMonth->subMonth()->format('Y-m')]) }}">
+        <a class="p-2"
+            href="{{ route('threads.month', [
+                'month' => $ofMonth->subMonthWithoutOverflow()->format('Y-m'),
+            ]) }}">
             &#10094;
         </a>
         <h1 class="p-2">{{ $ofMonth->format('Y-m') }}</h1>
-        <a class="p-2" href="{{ route('threads.month', ['month' => $ofMonth->addMonth()->format('Y-m')]) }}">
+        <a class="p-2"
+            href="{{ route('threads.month', [
+                'month' => $ofMonth->addMonthWithoutOverflow()->format('Y-m'),
+            ]) }}">
             &#10095;
         </a>
     </div>
@@ -33,7 +39,7 @@
             class="p-1 font-bold text-cyan-600 ring-1 ring-cyan-600 hover:bg-cyan-600 hover:text-white dark:text-cyan-500 dark:hover:bg-cyan-600 dark:hover:text-white">跳至月份</button>
     </form>
 
-    <div class="bg-white shadow-md dark:bg-neutral-800">
+    <div class="mb-2 bg-white shadow-md dark:bg-neutral-800">
         <div class="grid grid-cols-7 divide-x divide-teal-300">
             @foreach (['日', '一', '二', '三', '四', '五', '六'] as $day)
                 <span class="bg-teal-500 py-1 text-center text-white md:py-3">{{ $day }}</span>
@@ -66,11 +72,12 @@
 
                         @if ($thread)
                             <span
-                                class="absolute inset-1/2 flex h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-sm font-bold text-cyan-500 ring-2 ring-cyan-500 md:h-1/3 md:w-1/3 md:text-lg">
+                                class="absolute inset-1/2 flex h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center text-sm font-bold text-cyan-500 underline md:h-1/3 md:w-1/3 md:text-lg">
                                 {{ $thread->posters_count }}
                             </span>
                         @elseif($date->diffInDays(today()) == 1 && $date->lt(today()))
-                            <p class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-gray-400">
+                            <p
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-xs text-gray-400">
                                 預備中
                             </p>
                         @endif
@@ -83,4 +90,6 @@
             </div>
         @endwhile
     </div>
+
+    <small class="text-gray-400"><span class="text-cyan-500 underline">數字</span>為參與人數</small>
 @endsection

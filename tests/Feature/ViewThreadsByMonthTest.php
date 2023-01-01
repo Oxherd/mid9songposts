@@ -46,8 +46,8 @@ class ViewThreadsByMonthTest extends TestCase
         $ofMonth = today()->toImmutable();
 
         $response->assertSee([
-            route('threads.month', ['month' => $ofMonth->subMonth()->format('Y-m')]),
-            route('threads.month', ['month' => $ofMonth->addMonth()->format('Y-m')]),
+            route('threads.month', ['month' => $ofMonth->subMonthWithoutOverflow()->format('Y-m')]),
+            route('threads.month', ['month' => $ofMonth->addMonthWithoutOverflow()->format('Y-m')]),
         ]);
     }
 
@@ -59,7 +59,7 @@ class ViewThreadsByMonthTest extends TestCase
         ]);
 
         $notInMonth = Thread::factory()->create([
-            'date' => today()->subMonth()->format('Y-m-d'),
+            'date' => today()->subMonthWithoutOverflow()->format('Y-m-d'),
         ]);
 
         $response = $this->get(route('threads.month'));
@@ -90,11 +90,11 @@ class ViewThreadsByMonthTest extends TestCase
         ]);
 
         $otherMonth = Thread::factory()->create([
-            'date' => today()->subMonth()->format('Y-m-d'),
+            'date' => today()->subMonthWithoutOverflow()->format('Y-m-d'),
         ]);
 
         $response = $this->get(route('threads.month', [
-            'month' => today()->subMonth()->format('Y-m'),
+            'month' => today()->subMonthWithoutOverflow()->format('Y-m'),
         ]));
 
         $response->assertSee($otherMonth->date);
@@ -102,20 +102,29 @@ class ViewThreadsByMonthTest extends TestCase
     }
 
     /** @test */
-    public function it_lists_threads_in_current_month_by_default_unless_you_provide_a_valid_year_and_month()
+    public function it_must_provide_a_valid_month()
     {
-        Thread::factory()->create([
-            'date' => today()->subMonth()->format('Y-m-d'),
-        ]);
-
         $response = $this->get(route('threads.month', [
             'month' => "invalid-month-string",
         ]));
 
+        $response->assertNotFound();
+    }
+
+    /** @test */
+    public function it_lists_threads_in_current_month_by_default()
+    {
+        Thread::factory()->create([
+            'date' => today()->subMonthWithoutOverflow()->format('Y-m-d'),
+        ]);
+
+        $response = $this->get(route('threads.month'));
+
         $this->assertCount(0, $response->viewData('threads'));
+        $response->assertSee(today()->format('Y-m'));
 
         $response = $this->get(route('threads.month', [
-            'month' => today()->subMonth()->format('Y-m'),
+            'month' => today()->subMonthWithoutOverflow()->format('Y-m'),
         ]));
 
         $this->assertCount(1, $response->viewData('threads'));

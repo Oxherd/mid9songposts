@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Panther\Client as PantherClient;
 
@@ -43,5 +44,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Model::unguard();
+
+        Paginator::defaultView('paginator');
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Post;
 use App\Models\Poster;
+use App\Models\Thread;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PostFactory extends Factory
@@ -23,6 +24,7 @@ class PostFactory extends Factory
     public function definition()
     {
         return [
+            'thread_id' => Thread::factory(),
             'poster_id' => Poster::factory(),
             'no' => (string) $this->faker->randomNumber(),
             'has_music' => true,
