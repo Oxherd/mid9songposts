@@ -1,10 +1,6 @@
-name: Laravel
+name: Laravel Tests
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+on: [ workflow_call, workflow_dispatch ]
 
 jobs:
   laravel-tests:
