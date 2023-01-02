@@ -11,6 +11,7 @@ jobs:
   tests:
     uses: ./.github/workflows/laravel-tests.yml
   deploy:
+    needs: [tests]
     runs-on: ubuntu-latest
     env:
       exec: sudo docker compose exec --user=laradock -w /var/www/mid9songposts workspace
