@@ -1,0 +1,37 @@
+name: Deploy to Lightsail server
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+    
+jobs:
+  tests:
+    uses: ./.github/workflows/laravel-tests.yml
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      exec: sudo docker compose exec --user=laradock -w /var/www/mid9songposts workspace
+    steps:
+    - name: ssh commands
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        script_stop: true
+        script: |
+          cd ~/laradock
+          ${{ env.exec }} php artisan down
+          cd ~/mid9songposts
+          git pull origin master
+          cd ~/laradock
+          ${{ env.exec }} composer install -o --no-interaction --no-dev
+          ${{ env.exec }} php artisan migrate --no-interaction --force
+          ${{ env.exec }} php artisan cache:clear
+          ${{ env.exec }} php artisan view:clear
+          ${{ env.exec }} php artisan up
+
+      
