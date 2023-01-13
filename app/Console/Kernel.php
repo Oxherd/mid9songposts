@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\RefreshBahaToken;
 use App\Jobs\ScrapePostsFromSearchTitle;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -25,6 +26,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call(fn () => (new RefreshBahaToken)->handle())
+            ->dailyAt('22:00');
+
         $schedule->call(fn () => (new ScrapePostsFromSearchTitle)->handle())
             ->dailyAt('23:00')
             ->when(fn () => (bool) cache('BAHARUNE'));

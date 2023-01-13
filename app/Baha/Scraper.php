@@ -39,7 +39,10 @@ class Scraper
     {
         $jar = CookieJar::fromArray(['BAHARUNE' => cache('BAHARUNE')], '.gamer.com.tw');
 
-        $response = $this->cachedClient->request('GET', $url, ['cookies' => $jar]);
+        $response = $this->cachedClient->request('GET', $url, [
+            'cookies' => $jar,
+            'http_errors' => false,
+        ]);
 
         return (string) $response->getBody();
     }
@@ -60,7 +63,7 @@ class Scraper
 
         $this->cachedClient->request('GET', 'https://forum.gamer.com.tw');
 
-        $jar = new Cookie('BAHARUNE', cache('BAHARUNE'), null, null, '.gamer.com.tw');
+        $jar = new Cookie('BAHARUNE', cache('BAHARUNE', ''), null, null, '.gamer.com.tw');
 
         $this->cachedClient->getCookieJar()->set($jar);
 
