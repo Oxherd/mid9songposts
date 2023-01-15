@@ -3,14 +3,17 @@ name: Deploy to Lightsail server
 on:
   push:
     branches: [ "master" ]
-  pull_request:
+  pull_request_target:
     branches: [ "master" ]
+    types:
+      - closed
   workflow_dispatch:
     
 jobs:
   tests:
     uses: ./.github/workflows/laravel-tests.yml
   deploy:
+    if: github.event.pull_request.merged == true
     needs: [tests]
     runs-on: ubuntu-latest
     env:
