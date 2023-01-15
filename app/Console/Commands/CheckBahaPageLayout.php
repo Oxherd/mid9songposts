@@ -35,7 +35,8 @@ class CheckBahaPageLayout extends Command
      *
      * @var string
      */
-    protected $signature = 'check-baha';
+    protected $signature = 'check-baha
+                            {client=guzzle : Use determined client to check Baha pages, support guzzle, panther, and all}';
 
     /**
      * The console command description.
@@ -79,10 +80,15 @@ class CheckBahaPageLayout extends Command
      */
     public function handle()
     {
-        $this->checkBahaPageLayoutBy(self::GUZZLE);
-        $this->checkBahaPageLayoutBy(self::PANTHER);
+        $scrapeBy = $this->argument('client');
 
-        $this->outputResults();
+        if ($scrapeBy === self::GUZZLE || $scrapeBy === 'all') {
+            $this->checkBahaPageLayoutBy(self::GUZZLE);
+        }
+
+        if ($scrapeBy === self::PANTHER || $scrapeBy === 'all') {
+            $this->checkBahaPageLayoutBy(self::PANTHER);
+        }
     }
 
     protected function checkBahaPageLayoutBy($by)
@@ -122,6 +128,8 @@ class CheckBahaPageLayout extends Command
 
             $this->info('Comment request checked.');
         }
+
+        $this->outputResults();
     }
 
     protected function checkSearchTitlePage()
@@ -237,22 +245,20 @@ class CheckBahaPageLayout extends Command
         $rows = collect($this->reports)
             ->except('Comment Request')
             ->map(function ($results, $key) {
-                [self::GUZZLE => $guzzleResult, self::PANTHER => $pantherResult] = $results;
+                $result = $results[config('app.scrape_by')];
 
-                $guzzleColor = $guzzleResult == self::PASSED ? 'green' : ($guzzleResult == self::WARN ? 'yellow' : 'red');
-                $pantherColor = $pantherResult == self::PASSED ? 'green' : ($pantherResult == self::WARN ? 'yellow' : 'red');
+                $color = $result == self::PASSED ? 'green' : ($result == self::WARN ? 'yellow' : 'red');
 
                 return [
                     $key,
-                    "<fg={$guzzleColor}>{$guzzleResult}</>",
-                    "<fg={$pantherColor}>{$pantherResult}</>",
+                    "<fg={$color}>{$result}</>",
                 ];
             });
 
         $commentColor = $this->reports['Comment Request'] == self::PASSED ? 'green' : 'red';
         $rows[] = ['Comment Request', "<fg={$commentColor}>{$this->reports['Comment Request']}</>"];
 
-        $this->table(['Subject', 'Guzzle', 'Panther'], $rows);
+        $this->table(['Subject', config('app.scrape_by')], $rows);
     }
 
     protected function setCountableSearchReport(string $key, int $count)
