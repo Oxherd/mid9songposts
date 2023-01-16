@@ -27,7 +27,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(fn () => (new RefreshBahaToken)->handle())
-            ->dailyAt('22:00');
+            ->dailyAt('22:00')
+            ->when(fn () => !app()->environment('production'));
 
         $schedule->call(fn () => (new ScrapePostsFromSearchTitle)->handle())
             ->dailyAt('23:00')
