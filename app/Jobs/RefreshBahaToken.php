@@ -39,14 +39,14 @@ class RefreshBahaToken implements ShouldQueue
             dump('logining...');
 
             $this->loginBaha();
-        }
 
-        if (!$this->isLogin()) {
-            dump('login failed');
+            if (!$this->isLogin()) {
+                dump('login failed');
 
-            $this->revokeToken();
+                $this->revokeToken();
 
-            return;
+                return;
+            }
         }
 
         dump('login successed');
@@ -70,6 +70,8 @@ class RefreshBahaToken implements ShouldQueue
     protected function isLogin()
     {
         $page = $this->client->request('GET', 'https://forum.gamer.com.tw/B.php?bsn=60076');
+
+        $this->client->waitFor('#BH-wrapper');
 
         try {
             $hasAvatar = $page->filter('.topbar_member-home')->count();
@@ -95,6 +97,8 @@ class RefreshBahaToken implements ShouldQueue
         sleep(5);
 
         $this->client->submit($form);
+
+        sleep(5);
     }
 
     protected function revokeToken()

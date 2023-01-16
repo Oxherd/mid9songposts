@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0",
+        "dbrekelmans/bdi": "^1.0",
         "ezyang/htmlpurifier": "^4.16",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -22,7 +23,6 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",
         "brianium/paratest": "^6.6",
-        "dbrekelmans/bdi": "^1.0",
         "fakerphp/faker": "^1.9.1",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^6.1",
