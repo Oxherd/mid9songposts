@@ -143,4 +143,22 @@ class ViewThreadsByMonthTest extends TestCase
             'thread' => $date,
         ]));
     }
+
+    /** @test */
+    public function it_shows_default_page_title_if_no_month_specified()
+    {
+        $response = $this->get(route('threads.month'));
+
+        $response->assertSee('半夜歌串一人一首 - mid9songposts', false);
+    }
+
+    /** @test */
+    public function it_shows_which_month_threads_you_are_viewing_if_month_is_specified()
+    {
+        $response = $this->get(route('threads.month', [
+            'month' => $ofMonth = today()->format('Y-m'),
+        ]));
+
+        $response->assertSee($ofMonth . ' 歌串列表');
+    }
 }

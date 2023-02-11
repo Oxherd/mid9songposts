@@ -8,6 +8,10 @@
     }
 @endphp
 
+@if (request('month'))
+    @section('title', request('month') . ' 歌串列表')
+@endif
+
 @section('content')
     <div class="mb-3 flex justify-between text-xl font-bold text-gray-600 dark:text-gray-300 md:mb-6 md:text-3xl">
         <a class="p-2"

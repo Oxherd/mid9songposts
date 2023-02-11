@@ -112,4 +112,43 @@ class ViewAllLinksTest extends TestCase
         $response->assertSee('ABC song');
         $response->assertDontSee('Christmas carol');
     }
+
+    /** @test */
+    public function it_has_its_own_default_page_title()
+    {
+        $response = $this->get(route('links.index'));
+
+        $response->assertSee('歌曲列表 - mid9songposts', false);
+    }
+
+    /** @test */
+    public function it_shows_what_account_you_are_currently_specified_in_the_title()
+    {
+        $response = $this->get(route('links.index', [
+            'account' => 'john',
+        ]));
+
+        $response->assertSee('搜尋 帳號: john', false);
+    }
+
+    /** @test */
+    public function it_shows_what_link_title_you_are_currently_searching_for_in_the_title()
+    {
+        $response = $this->get(route('links.index', [
+            'search' => 'abc',
+        ]));
+
+        $response->assertSee('搜尋 標題: abc', false);
+    }
+
+    /** @test */
+    public function it_shows_what_account_currently_specified_and_what_link_title_currently_searching_for_in_the_title_at_same_time()
+    {
+        $response = $this->get(route('links.index', [
+            'account' => 'john',
+            'search' => 'abc',
+        ]));
+
+        $response->assertSee('搜尋 john 張貼的 abc', false);
+    }
 }

@@ -7,7 +7,6 @@ use App\Models\Link;
 use App\Models\Post;
 use App\Models\Poster;
 use App\Models\Thread;
-use HTMLPurifier;
 use Tests\TestCase;
 
 class ViewThreadByDateTest extends TestCase
@@ -90,5 +89,19 @@ class ViewThreadByDateTest extends TestCase
 
         $response->assertSee($comment->content);
         $response->assertSee($comment->poster->account);
+    }
+
+    /** @test */
+    public function it_shows_thread_title_in_the_page_title_section()
+    {
+        $thread = Thread::factory()->create([
+            'title' => '【情報】1/1 半夜歌串一人一首',
+        ]);
+
+        $response = $this->get(route('threads.show', [
+            'thread' => $thread->date,
+        ]));
+
+        $response->assertSee('【情報】1/1 半夜歌串一人一首 - mid9songposts', false);
     }
 }

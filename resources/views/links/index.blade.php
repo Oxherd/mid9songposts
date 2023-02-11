@@ -1,15 +1,37 @@
 @extends('layout')
 
+@php
+    $title = '歌曲列表';
+
+    if (request()->filled(['account', 'search'])) {
+        $title = '搜尋 ' . request('account') . ' 張貼的 ' . request('search');
+    } elseif (request('account')) {
+        $title = '搜尋 帳號: ' . request('account');
+    } elseif (request('search')) {
+        $title = '搜尋 標題: ' . request('search');
+    }
+@endphp
+
+@section('title', $title)
+
 @section('content')
     {{ $links->onEachSide(1)->withQueryString()->links() }}
 
     <div class="mb-3">
         <div class="mb-3 flex flex-wrap justify-center gap-2 text-sm md:justify-between">
             <form class="flex gap-2" action="{{ route('links.index') }}" method="GET">
-                <input class="w-24 p-1 shadow" name="account" type="text" value="{{ request('account') }}" placeholder="帳號"
-                    :style="darkMode && { 'color-scheme': 'dark' }">
-                <input class="w-32 p-1 shadow" name="search" type="text" value="{{ request('search') }}"
-                    placeholder="標題" :style="darkMode && { 'color-scheme': 'dark' }">
+                <div class="relative inline-block" x-data="{ account: '{{ request('account') }}' }">
+                    <input class="w-24 p-1 shadow" name="account" type="text" placeholder="帳號"
+                        :style="darkMode && { 'color-scheme': 'dark' }" x-model="account" x-ref="account">
+                    <span class="absolute right-1 top-1 cursor-pointer" x-cloak x-show="account"
+                        @click="account = ''; $refs.account.focus()">&times;</span>
+                </div>
+                <div class="relative inline-block" x-data='{ search: {{ json_encode(request('search')) }} }'>
+                    <input class="w-32 p-1 shadow" name="search" type="text" placeholder="標題"
+                        :style="darkMode && { 'color-scheme': 'dark' }" x-model="search" x-ref="search">
+                    <span class="absolute right-1 top-1 cursor-pointer" x-cloak x-show="search"
+                        @click="search = ''; $refs.search.focus()">&times;</span>
+                </div>
                 <button
                     class="p-1 text-cyan-600 ring-1 ring-cyan-600 hover:bg-cyan-600 hover:text-white dark:text-cyan-500 dark:hover:bg-cyan-600 dark:hover:text-white">
                     搜尋
@@ -63,7 +85,7 @@
                             </a>
                             <span>發布於</span>
                             <a class="hover:text-cyan-500 dark:hover:text-cyan-400"
-                                href="{{ route('threads.show', ['thread' => $link->thread->date]) . '#' . $link->poster->account }}"
+                                href="{{ route('threads.show', ['thread' => $link->thread->date]) . '#' . $link->post->no }}"
                                 title="{{ $link->thread->title }}">
                                 {{ $link->post->created_at }}
                             </a>
