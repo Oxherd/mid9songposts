@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>mid9songposts</title>
+    <title>@yield('title', '半夜歌串一人一首') - mid9songposts</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
@@ -55,6 +55,10 @@
     <div class="bg-cyan-600 p-1 text-center text-xs text-white md:text-sm">
         <small>The end of the page.</small>
     </div>
+
+    <button
+        class="fixed bottom-5 right-5 hidden border border-cyan-600 bg-neutral-100 p-1 text-cyan-600 shadow dark:bg-gray-900 md:inline-block"
+        @click="window.scroll(0, 0)">▲</button>
 </body>
 
 </html>

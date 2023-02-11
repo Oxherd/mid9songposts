@@ -1,5 +1,7 @@
 @extends('layout')
 
+@section('title', $thread->title)
+
 @section('content')
     <div
         class="flex flex-wrap items-center gap-2 border-b bg-white p-2 shadow-md dark:border-neutral-600 dark:bg-neutral-700 md:justify-between">
@@ -18,9 +20,9 @@
     </div>
 
     @foreach ($thread->posts as $post)
-        <a class="invisible relative -top-20 block" id="{{ $post->poster->account }}"></a>
-        <div
-            class="{{ $post->links->isEmpty() ? 'opacity-50' : '' }} border-b bg-white p-2 shadow-md dark:border-neutral-600 dark:bg-neutral-700">
+        <a class="invisible relative -top-20 block" id="{{ $post->no }}"></a>
+        <div class="{{ $post->links->isEmpty() ? 'opacity-50' : '' }} border-b bg-white p-2 shadow-md dark:border-neutral-600 dark:bg-neutral-700"
+            :class="window.location.hash == '#{{ $post->no }}' && 'outline-double outline-teal-500'">
             <h6 class="flex items-center gap-3 py-2">
                 <a href="{{ route('links.index', ['account' => $post->poster->account]) }}">
                     <img src="{{ $post->poster->avatar }}" alt="{{ $post->poster->account }}">
@@ -33,12 +35,11 @@
                         {{ $post->poster->account }} ({{ $post->poster->name }})
                     </a>
 
-                    <span class="text-sm text-gray-400">發布於 {{ $post->created_at }}</span>
+                    <span class="text-sm text-gray-400" title="#{{ $post->no }}">發布於 {{ $post->created_at }}</span>
                 </div>
 
                 <button
                     class="ml-auto p-1 text-sm text-cyan-600 ring-1 ring-cyan-600 hover:bg-cyan-600 hover:text-white dark:text-cyan-500 dark:hover:bg-cyan-600 dark:hover:text-white"
-                    x-data
                     @click="$dispatch('see-post', {
                         avatar: '{{ $post->poster->avatar }}',
                         account: '{{ $post->poster->account }}',
