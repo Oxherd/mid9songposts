@@ -20,16 +20,19 @@
     <div class="mb-3">
         <div class="mb-3 flex flex-wrap justify-center gap-2 text-sm md:justify-between">
             <form class="flex gap-2" action="{{ route('links.index') }}" method="GET">
-                <div class="relative inline-block" x-data="{ account: '{{ request('account') }}' }">
-                    <input class="w-24 p-1 shadow" name="account" type="text" placeholder="帳號"
+                <div class="inline-block bg-white shadow dark:bg-neutral-700" x-data="{ account: '{{ request('account') }}' }">
+                    <input class="w-20 bg-transparent p-1 md:w-24" name="account" type="text" placeholder="帳號"
                         :style="darkMode && { 'color-scheme': 'dark' }" x-model="account" x-ref="account">
-                    <span class="absolute right-1 top-1 cursor-pointer" x-cloak x-show="account"
+                    <span class="inline-block h-full cursor-pointer px-1"
+                        :class="account ? 'text-black dark:text-gray-300' : 'text-gray-300 dark:text-gray-500'"
                         @click="account = ''; $refs.account.focus()">&times;</span>
                 </div>
-                <div class="relative inline-block" x-data='{ search: {{ json_encode(request('search')) }} }'>
-                    <input class="w-32 p-1 shadow" name="search" type="text" placeholder="標題"
+                <div class="inline-block bg-white shadow dark:bg-neutral-700"
+                    x-data='{ search: {{ json_encode(request('search')) }} }'>
+                    <input class="w-20 bg-transparent p-1 md:w-24" name="search" type="text" placeholder="標題"
                         :style="darkMode && { 'color-scheme': 'dark' }" x-model="search" x-ref="search">
-                    <span class="absolute right-1 top-1 cursor-pointer" x-cloak x-show="search"
+                    <span class="inline-block h-full cursor-pointer px-1"
+                        :class="search ? 'text-black dark:text-gray-300' : 'text-gray-300 dark:text-gray-500'"
                         @click="search = ''; $refs.search.focus()">&times;</span>
                 </div>
                 <button
