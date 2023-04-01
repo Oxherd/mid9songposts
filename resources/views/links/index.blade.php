@@ -96,8 +96,10 @@
                     </div>
                 </div>
 
-                <iframe class="aspect-video grow basis-full md:basis-1/2" src="{{ $link->embedded() }}" x-cloak
-                    x-show="showVideo || showAllVideo" frameborder="0" loading="lazy" allowfullscreen></iframe>
+                <template x-if="showVideo || showAllVideo">
+                    <iframe class="aspect-video grow basis-full md:basis-1/2" src="{{ $link->embedded() }}" frameborder="0"
+                        loading="lazy" allowfullscreen></iframe>
+                </template>
             </div>
         @empty
             <h1 class="text-center text-xl text-gray-500 dark:text-gray-400">查無結果</h1>
