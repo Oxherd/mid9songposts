@@ -63,8 +63,10 @@
                             <a class="px-2" href="{{ $link->general() }}" title="開啟外部網頁" target="_blank">&rdsh;</a>
                         </div>
 
-                        <iframe class="mx-auto aspect-video w-full max-w-2xl" src="{{ $link->embedded() }}" x-cloak
-                            x-show="showVideo || showAllVideo" frameborder="0" loading="lazy" allowfullscreen></iframe>
+                        <template x-if="showVideo || showAllVideo">
+                            <iframe class="mx-auto aspect-video w-full max-w-2xl" src="{{ $link->embedded() }}"
+                                frameborder="0" loading="lazy" allowfullscreen></iframe>
+                        </template>
                     </div>
                 @endforeach
             </div>
