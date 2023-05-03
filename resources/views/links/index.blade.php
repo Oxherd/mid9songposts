@@ -67,7 +67,7 @@
                 <div class="grow self-start bg-white shadow-md dark:bg-neutral-700 md:basis-1/2">
                     <div class="border-b p-2 dark:border-neutral-600">
                         <span class="cursor-pointer text-cyan-600 dark:text-cyan-400" title="點擊顯示影片"
-                            @click="showVideo = !showVideo">
+                            @click="if (!$event.altKey) showVideo = !showVideo">
                             {{ $link->title }}
                         </span>
                         <a class="px-2 text-gray-500 dark:text-gray-300" href="{{ $link->general() }}" title="開啟外部網頁"

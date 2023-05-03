@@ -45,8 +45,8 @@
                         account: '{{ $post->poster->account }}',
                         name: '{{ $post->poster->name }}',
                         created_at: '{{ $post->created_at }}',
-                        content: `{{ app(HTMLPurifier::class)->purify($post->content) }}`,
-                        raw: `{{ $post->content }}`
+                        content: {{ json_encode(app(HTMLPurifier::class)->purify($post->content)) }},
+                        raw: {{ json_encode($post->content) }}
                     });">
                     內文
                 </button>
@@ -57,7 +57,7 @@
                     <div x-data="{ showVideo: false }">
                         <div x-show="!showVideo && !showAllVideo">
                             <span class="cursor-pointer text-cyan-600 dark:text-cyan-400" title="點擊開啟影片"
-                                @click="showVideo = true">
+                                @click="if (!$event.altKey) showVideo = true">
                                 {{ $link->title }}
                             </span>
                             <a class="px-2" href="{{ $link->general() }}" title="開啟外部網頁" target="_blank">&rdsh;</a>
