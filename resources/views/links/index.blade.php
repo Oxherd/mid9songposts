@@ -18,7 +18,8 @@
     {{ $links->onEachSide(1)->withQueryString()->links() }}
 
     <div class="mb-3">
-        <div class="mb-3 flex flex-wrap justify-center gap-2 text-sm md:justify-between">
+        <div
+            class="z-50 -mx-2 flex flex-wrap justify-center gap-2 bg-neutral-100 pb-2 text-sm dark:bg-gray-900 md:sticky md:top-[52px] md:justify-between md:p-2">
             <form class="flex gap-2" action="{{ route('links.index') }}" method="GET">
                 <div class="inline-block bg-white shadow dark:bg-neutral-700" x-data="{ account: '{{ request('account') }}' }">
                     <input class="w-20 bg-transparent p-1 md:w-24" name="account" type="text" placeholder="帳號"
