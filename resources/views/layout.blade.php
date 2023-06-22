@@ -57,7 +57,7 @@
     </div>
 
     <button
-        class="fixed bottom-5 right-5 hidden border border-cyan-600 bg-neutral-100 p-1 text-cyan-600 shadow dark:bg-gray-900 md:inline-block"
+        class="fixed bottom-5 right-5 hidden border border-cyan-600 bg-neutral-100 p-1 leading-tight text-cyan-600 shadow dark:bg-gray-900 md:inline-block"
         @click="window.scroll(0, 0)">▲</button>
 </body>
 
