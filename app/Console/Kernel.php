@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->call(fn () => (new RefreshBahaToken)->handle())
             ->dailyAt('22:00')
-            ->when(fn () => !app()->environment('production'));
+            ->when(fn () => env('REFRESH_BAHA_TOKEN', false));
 
         $schedule->call(fn () => (new ScrapePostsFromSearchTitle)->handle())
             ->dailyAt('23:00')
