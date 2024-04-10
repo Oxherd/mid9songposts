@@ -26,6 +26,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         protocol: tcp6
+        port: 22
         script_stop: true
         script: |
           cd ~/laradock
