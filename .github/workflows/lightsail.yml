@@ -8,7 +8,7 @@ on:
     types:
       - closed
   workflow_dispatch:
-    
+
 jobs:
   tests:
     uses: ./.github/workflows/laravel-tests.yml
@@ -25,6 +25,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
+        protocol: tcp6
         script_stop: true
         script: |
           cd ~/laradock
@@ -38,4 +39,4 @@ jobs:
           ${{ env.exec }} php artisan view:clear
           ${{ env.exec }} php artisan up
 
-      
+
