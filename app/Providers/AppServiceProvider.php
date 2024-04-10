@@ -7,6 +7,7 @@ use HTMLPurifier;
 use HTMLPurifier_Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Panther\Client as PantherClient;
 
@@ -46,5 +47,8 @@ class AppServiceProvider extends ServiceProvider
         Model::unguard();
 
         Paginator::defaultView('paginator');
+
+        if (config('app.env') === 'production')
+            URL::forceScheme('https');
     }
 }
