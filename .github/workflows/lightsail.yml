@@ -19,7 +19,7 @@ jobs:
       exec: sudo docker compose exec --user=laradock -w /var/www/mid9songposts workspace
     steps:
     - name: ssh commands
-      uses: appleboy/ssh-action@v1.0.3
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
