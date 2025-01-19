@@ -62,21 +62,21 @@ class RefreshBahaToken implements ShouldQueue
 
         if (cache('cookies')) {
             collect(cache('cookies'))->each(
-                fn (Cookie $cookie) => $this->client->getCookieJar()->set($cookie)
+                fn(Cookie $cookie) => $this->client->getCookieJar()->set($cookie)
             );
         }
     }
 
     protected function isLogin()
     {
-        $page = $this->client->request('GET', 'https://forum.gamer.com.tw/B.php?bsn=60076');
-
-        $this->client->waitFor('#BH-wrapper');
-
         try {
-            $hasAvatar = $page->filter('.topbar_member-home')->count();
+            $page = $this->client->request('GET', 'https://forum.gamer.com.tw/B.php?bsn=60076');
 
-            return (bool) $hasAvatar;
+            $this->client->waitFor('#BH-wrapper');
+
+            $hasNoLogin = $page->filter('.TOP-nologin')->count();
+
+            return !(bool) $hasNoLogin;
         } catch (\Throwable $th) {
             return false;
         }
